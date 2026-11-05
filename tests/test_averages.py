@@ -14,6 +14,9 @@ sys.path.insert(0, str(ROOT / "src" / "python"))
 
 from averages import gaussian, get_mean_cum, get_mean_std, get_mean_std_cum
 
+# NumPy 2 renamed np.trapz to np.trapezoid; NumPy 1.x has only np.trapz.
+trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 
 class AverageTests(unittest.TestCase):
     def test_mean_and_population_standard_deviation(self) -> None:
@@ -36,7 +39,7 @@ class AverageTests(unittest.TestCase):
     def test_gaussian_is_normalized_numerically(self) -> None:
         x = np.linspace(-8.0, 8.0, 100_001)
         density = gaussian(x, 0.0, 1.0)
-        self.assertAlmostEqual(float(np.trapz(density, x)), 1.0, places=6)
+        self.assertAlmostEqual(float(trapezoid(density, x)), 1.0, places=6)
 
 
 if __name__ == "__main__":

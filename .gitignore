@@ -10,3 +10,4 @@ __pycache__/
 sample_case_output/
 sample_case_quick/
 *.h5
+benchmark_output/

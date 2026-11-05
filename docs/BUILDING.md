@@ -5,7 +5,8 @@
 The extension requires:
 
 - a C++17 compiler
-- CMake 3.0 or newer
+- CMake 3.0 or newer (CMake 4 needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` at
+  configure time, because `src/CMakeLists.txt` declares version 3.0)
 - Python 3 and its development headers
 - pybind11
 - Eigen3 3.3 or newer
@@ -23,10 +24,34 @@ module load python/3.12.7
 module load pybind11/2.13.6
 module load eigen/3.4.0
 module load boost/1.84.0
+module load cmake/3.31.7
 ```
 
-Package names and module commands vary by system. CMake must be able to locate
-the package configuration files for pybind11 and Eigen3.
+Compute nodes may have no system CMake even when the login node has one, so
+load CMake as a module too. The pybind11 module sets `pybind11_DIR`; pass it
+to CMake with `-Dpybind11_DIR="$pybind11_DIR"`. The Python packages of
+`requirements.txt` go in a virtual environment created with the module
+Python. Package names and module commands vary by system. CMake must be able
+to locate the package configuration files for pybind11 and Eigen3.
+
+## macOS with Apple clang
+
+The Release flags contain three GCC-only options (`-ffloat-store`,
+`-Wno-maybe-uninitialized`, and `-rdynamic` at compile time), and `-Werror`
+turns clang's warnings about them into errors. Boost is added as a regular
+include directory, so `-Wdouble-promotion` warnings inside the Boost 1.84
+headers also stop the build. Without changing `src/`, configure with:
+
+```bash
+cmake -S src -B build/Release -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  -DCMAKE_CXX_FLAGS="-isystem <prefix>/include -Wno-ignored-optimization-argument -Wno-unused-command-line-argument -Wno-unknown-warning-option" \
+  -Dpybind11_DIR="$(python3 -m pybind11 --cmakedir)"
+```
+
+Here `<prefix>/include` is the directory that holds the Boost headers, for
+example the `include/` directory of a conda environment or `/opt/homebrew/include`.
+A clang build on arm64 is not bit-identical to the GCC x86-64 reference.
 
 ## Release build
 

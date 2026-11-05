@@ -1,0 +1,110 @@
+{
+ "benchmark": "smoke",
+ "source": "runs/revision/repro/smoke_public (public code build)",
+ "runtime_s_one_core": 127,
+ "checks": {
+  "static.net_force_rel": {
+   "max": 1e-12,
+   "observed": 2.9273888219043424e-15
+  },
+  "static.force_fd_max_abs_err_eV_A": {
+   "max": 2e-05,
+   "unit": "eV/A",
+   "observed": 3.679493137774854e-06
+  },
+  "static.born_stress_fd_max_abs_err_GPa": {
+   "max": 1e-05,
+   "unit": "GPa",
+   "observed": 1.214144522857666e-06
+  },
+  "static.born_C_fd_max_abs_err_GPa": {
+   "max": 0.05,
+   "unit": "GPa",
+   "observed": 0.012882371796081316
+  },
+  "static.laplacian_fd_rel_err": {
+   "max": 2e-05,
+   "observed": 3.6912116878251054e-06
+  },
+  "static.static_epot_eV_per_atom": {
+   "expected": -3.499178009833739,
+   "tol": 3.4991780098337387e-07,
+   "unit": "eV"
+  },
+  "static.static_pressure_GPa": {
+   "expected": 5.131072141960654,
+   "tol": 5.131072141960654e-07,
+   "unit": "GPa"
+  },
+  "static.static_CB11_GPa": {
+   "expected": 197.39640099071525,
+   "tol": 1.9739640099071524e-05,
+   "unit": "GPa"
+  },
+  "static.static_CB12_GPa": {
+   "expected": 126.57573188386776,
+   "tol": 1.2657573188386775e-05,
+   "unit": "GPa"
+  },
+  "static.static_CB44_GPa": {
+   "expected": 92.13965579273138,
+   "tol": 9.213965579273137e-06,
+   "unit": "GPa"
+  },
+  "static.laplacian_eV_A2": {
+   "expected": 6567.7703846347085,
+   "tol": 0.0006567770384634708,
+   "unit": "eV/A^2"
+  },
+  "static.static_T_conf_K": {
+   "expected": 1000.1204874537741,
+   "tol": 0.00010001204874537741,
+   "unit": "K"
+  },
+  "dynamics.nve_dt_ratio": {
+   "min": 3.5,
+   "max": 4.5,
+   "observed": 3.9982834590204637
+  },
+  "dynamics.nve_dt2.econs_err_max": {
+   "max": 5e-05,
+   "observed": 1.0573919735690218e-05
+  },
+  "dynamics.nve_dt1.econs_err_max": {
+   "max": 1.5e-05,
+   "observed": 2.654354539277648e-06
+  },
+  "dynamics.nvt.econs_err_max": {
+   "max": 5e-05,
+   "observed": 1.3704527183855397e-05
+  },
+  "dynamics.npt.econs_err_max": {
+   "max": 5e-05,
+   "observed": 1.2208069872454708e-05
+  },
+  "dynamics.nvt.T_kin": {
+   "min": 290.0,
+   "max": 310.0,
+   "unit": "K",
+   "observed": 299.9726305444797
+  },
+  "dynamics.nvt.T_conf_recip": {
+   "min": 285.0,
+   "max": 315.0,
+   "unit": "K",
+   "observed": 302.50620344257345
+  },
+  "dynamics.npt.T_kin": {
+   "min": 290.0,
+   "max": 310.0,
+   "unit": "K",
+   "observed": 299.7497042431177
+  },
+  "dynamics.npt.T_conf_recip": {
+   "min": 285.0,
+   "max": 315.0,
+   "unit": "K",
+   "observed": 300.4121798952265
+  }
+ }
+}

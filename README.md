@@ -42,6 +42,14 @@ Every distributed file and directory is listed below.
     - `sample_case/expected_output/result.json` — reference summary, replica scatter, and acceptance tolerances.
     - `sample_case/expected_output/npt_series_decimated.csv` — NPT temperature, pressure, and box-length series, every 500th step.
     - `sample_case/expected_output/nvt_series_decimated.csv` — NVT temperature, pressure, and elastic-constant running means, every 500th step.
+- `benchmarks/` — verification benchmarks S, Z1, and L1 with expected values and tolerances.
+  - `benchmarks/README.md` — what each benchmark checks, how to run and verify it, and runtimes.
+  - `benchmarks/verify.py` — compares a run with `benchmarks/expected/` and prints PASS or FAIL for every quantity.
+  - `benchmarks/bench_lib.py` — helpers shared by the benchmark scripts.
+  - `benchmarks/smoke/run_smoke.py` — benchmark S: static finite-difference checks and short NVE, NVT, and NPT runs.
+  - `benchmarks/l12_cuzn3_5K/run.py` — benchmark L1: L1₂ CuZn₃ at 5 K, NPT followed by NVT.
+  - `benchmarks/expected/` — expected values and tolerances (`smoke.json`, `zn06_300K.json`, `l12_cuzn3_5K.json`, and the readable `EXPECTED.md`).
+  - `benchmarks/slurm_example.sh` — one-core Slurm array that runs and verifies S, Z1, and L1.
 - `tests/` — standard-library unit, integrity, and compiled smoke tests.
   - `tests/test_averages.py` — statistical-helper unit tests.
   - `tests/test_examples_smoke.py` — short compiled runs of all examples and the NPT-to-NVT sample.
@@ -82,23 +90,28 @@ The program source in `src/` and `examples/`, the potential data,
 <https://doi.org/10.5281/zenodo.21380003>. They also correspond to public
 GitHub commit `0faa99e43eec4d541eeb021333756a6a3cc2e4ae` at
 <https://github.com/menahemkrief/mdelast>. The CPC-specific README,
-`sample_case/`, third-party notices, and documentation corrections do not
-modify the deposited program source.
+`sample_case/`, `benchmarks/`, third-party notices, and documentation
+corrections do not modify the deposited program source.
 
 ## Requirements
 
 The reference environment was Linux x86-64 with:
 
 - GCC 14.2.0 with C++17 support;
-- CMake 3.0 or newer;
+- CMake 3.0 or newer (CMake 4 needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`);
 - Python 3.12 and Python development headers;
 - pybind11 2.13.6;
 - Eigen 3.4.0 (minimum 3.3);
 - Boost 1.84.0 headers;
 - NumPy 1.26.2, SciPy 1.11.4, h5py 3.10.0, and Matplotlib 3.8.2.
 
+Keep NumPy 1.x: `src/python/vacf.py` calls `np.trapz`, which current NumPy 2
+releases no longer provide.
+
 Other C++17 compilers and Python 3 versions may work, but regression values can
 vary slightly with compiler, CPU, and floating-point optimization.
+`docs/BUILDING.md` gives the module setup for clusters and the configure
+options for macOS with Apple clang.
 
 On Ubuntu/Debian, install the system build dependencies with:
 
@@ -156,6 +169,14 @@ not scientific regressions. If the extension is in a non-default location:
 ```bash
 MDELAST_BUILD_DIR=/path/to/build python3 -m unittest discover -s tests -v
 ```
+
+## Benchmarks
+
+`benchmarks/` holds three benchmarks for verifying an installation: S (static
+checks and short runs, about 2 min), Z1 (the sample case below, about 1.3 h),
+and L1 (L1₂ CuZn₃ at 5 K, about 1.1 h), each on one core.
+`benchmarks/verify.py` checks a run against `benchmarks/expected/` and prints
+PASS or FAIL for every quantity. `benchmarks/README.md` gives the commands.
 
 ## Comprehensive sample case
 
