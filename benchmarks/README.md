@@ -3,7 +3,7 @@
 This directory documents how to verify an mdelast installation independently and how to reproduce the reference calculations of the paper
 (R. Shikler, M. Krief, Y. Ashkenazy, *Elastic constants of multi-component EAM alloys from single-trajectory stress fluctuations*, Comput. Phys. Commun.).
 
-It is meant to be copied to the repository root as `benchmarks/`; all paths below are relative to the repository root.
+All paths below are relative to the repository root.
 It needs only the files already in the repository (`src/`, `potentials/ZnCu.eam.alloy`, `sample_case/run.py`).
 
 | ID | Benchmark | What it verifies | Input | Runtime, 1 core |

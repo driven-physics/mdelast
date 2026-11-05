@@ -4,16 +4,18 @@
 finite-temperature elastic constants of multi-component embedded-atom-method
 (EAM) alloys from equilibrium stress fluctuations.
 
-This CPC program package contains the source deposited as
+This CPC program package, version 1.0, contains the source deposited as
 [Zenodo record 21380003](https://doi.org/10.5281/zenodo.21380003), an MIT
-license, user documentation, and a complete input/output test based on the
-manuscript's representative 6 at.% Zn alpha-brass calculation.
+license, user documentation, a complete input/output test based on the
+manuscript's representative 6 at.% Zn alpha-brass calculation, and
+verification benchmarks. Repository: <https://github.com/driven-physics/mdelast>.
 
 ## Package inventory
 
 Every distributed file and directory is listed below.
 
 - `LICENSE` — MIT license for mdelast.
+- `CITATION.cff` — citation metadata for this version.
 - `README.md` — package inventory, installation, execution, and validation instructions.
 - `requirements.txt` — pinned Python runtime dependencies.
 - `docs/` — user and developer documentation.
@@ -87,9 +89,7 @@ the distributed package.
 The program source in `src/` and `examples/`, the potential data,
 `requirements.txt`, and `LICENSE` are from the deposited `mdelast-main.zip`
 (MD5 `928812de6fe872e058e2fade2c41ded5`) at
-<https://doi.org/10.5281/zenodo.21380003>. They also correspond to public
-GitHub commit `0faa99e43eec4d541eeb021333756a6a3cc2e4ae` at
-<https://github.com/menahemkrief/mdelast>. The CPC-specific README,
+<https://doi.org/10.5281/zenodo.21380003>. The CPC-specific README,
 `sample_case/`, `benchmarks/`, third-party notices, and documentation
 corrections do not modify the deposited program source.
 
@@ -256,6 +256,13 @@ both stages. It prints every comparison and exits with status 0 only when all
 checks pass. Pressure is reported for diagnosis but is not used as an
 acceptance criterion because the NPT target is effectively zero.
 
+The same run can also be checked as benchmark Z1, against
+`benchmarks/expected/zn06_300K.json`:
+
+```bash
+python3 benchmarks/verify.py zn06_300K sample_case_output
+```
+
 ## Please cite
 
 When using mdelast, please cite the associated paper:
@@ -265,7 +272,8 @@ EAM alloys from single-trajectory stress fluctuations,” *Computer Physics
 Communications* (submitted).
 
 Until the article receives its final bibliographic details, also cite the
-archived software: <https://doi.org/10.5281/zenodo.21380003>.
+archived software, <https://doi.org/10.5281/zenodo.21380002> (all versions).
+`CITATION.cff` gives the citation metadata.
 
 ## Runtime estimate
 
