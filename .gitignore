@@ -5,3 +5,8 @@ __pycache__/
 *.pyc
 .venv/
 .DS_Store
+*.so
+*.dylib
+sample_case_output/
+sample_case_quick/
+*.h5
