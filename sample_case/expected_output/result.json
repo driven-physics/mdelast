@@ -1,0 +1,40 @@
+{
+  "acceptance_tolerance": {
+    "C11_GPa": 1.1,
+    "C12_GPa": 1.1,
+    "C44_GPa": 0.32,
+    "box_length_A": 0.01,
+    "temperature_K": 1.8
+  },
+  "case": "6 at.% Zn alpha-brass at 300 K, 500 atoms",
+  "cycles_thermalization": 50000,
+  "npt_velocity_seed": 0,
+  "npt": {
+    "box_length_A": 18.334630081862322,
+    "pressure_GPa": 9.164175382517136e-06,
+    "temperature_configurational_reciprocal_mean_K": 300.63217240253056,
+    "temperature_configurational_sample_mean_K": 301.2191352438581,
+    "temperature_kinetic_K": 300.17234296390376
+  },
+  "nvt": {
+    "C11_GPa": 153.0656991761722,
+    "C12_GPa": 102.6289723080915,
+    "C44_GPa": 71.89331964229989,
+    "box_length_A": 18.334630081862322,
+    "pressure_GPa": -0.00381330565163145,
+    "temperature_configurational_reciprocal_mean_K": 299.97501457809193,
+    "temperature_configurational_sample_mean_K": 300.5768102414237,
+    "temperature_kinetic_K": 299.99009382230474
+  },
+  "nvt_velocity_seed": 0,
+  "placement_seed": 42,
+  "production_cycles": 100000,
+  "replica_standard_deviation": {
+    "C11_GPa": 0.3643,
+    "C12_GPa": 0.3648,
+    "C44_GPa": 0.1048,
+    "box_length_A": 0.00084,
+    "temperature_configurational_K": 0.5900,
+    "temperature_kinetic_K": 0.1022
+  }
+}
