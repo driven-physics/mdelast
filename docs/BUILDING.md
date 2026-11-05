@@ -20,7 +20,7 @@ On a module-based cluster, an equivalent environment is:
 
 ```bash
 module load gcc/14.2.0
-module load python/3.12.7
+module load python/3.12.1
 module load pybind11/2.13.6
 module load eigen/3.4.0
 module load boost/1.84.0
@@ -29,10 +29,14 @@ module load cmake/3.31.7
 
 Compute nodes may have no system CMake even when the login node has one, so
 load CMake as a module too. The pybind11 module sets `pybind11_DIR`; pass it
-to CMake with `-Dpybind11_DIR="$pybind11_DIR"`. The Python packages of
-`requirements.txt` go in a virtual environment created with the module
-Python. Package names and module commands vary by system. CMake must be able
-to locate the package configuration files for pybind11 and Eigen3.
+to CMake with `-Dpybind11_DIR="$pybind11_DIR"`. On the reference cluster the
+`python/3.12.1` module provides the packages of `requirements.txt` through
+its `PYTHONPATH`; clear `PYTHONPATH` before loading modules, not after, and
+set `PYTHONNOUSERSITE=1` so that packages in `~/.local` do not interfere.
+Where the Python module lacks these packages, install them in a virtual
+environment created with the module Python. Package names and module commands
+vary by system. CMake must be able to locate the package configuration files
+for pybind11 and Eigen3.
 
 ## macOS with Apple clang
 
