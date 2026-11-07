@@ -477,7 +477,8 @@ class MolecularDynamics:
         self.dump_counter = 0
 
         self.ndensity = self.Nparticles / self.volume
-        self.Nf = 3.0 * self.Nparticles  # 3. * (self.Nparticles - 1.)
+        # Three center-of-mass momentum components are removed at initialization.
+        self.Nf = 3.0 * (self.Nparticles - 1.0)
 
         # timesteps
         self.thermalized = False

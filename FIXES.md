@@ -1,5 +1,33 @@
 # Fixes in this version
 
+## Version 1.1
+
+### 3. Degrees of freedom of the thermostat and the kinetic temperature
+
+**File:** `src/python/molecular_dynamics.py` (`self.Nf`)
+
+**Problem.** The number of degrees of freedom was `Nf = 3N`, although the three
+center-of-mass momentum components are set to zero at initialization and stay
+zero. The thermostat held `<2K> = 3N kT` on `3N-3` active momenta, so the atoms
+sat at `T (1 + 1/(N-1))`, 0.2% above the target at N = 500, while the reported
+kinetic temperature, computed with the same `Nf`, read exactly `T`. The
+configurational temperature, which counts no degrees of freedom, showed the
+excess.
+
+**Fix.** `Nf = 3(N-1)`, used consistently for the kinetic temperature, the
+thermostat force and mass, the conserved energy, and the barostat
+(`alpha = 1 + 3/Nf`, `W = Nf kT tau_P^2`).
+
+**Effect.** Verified with 200 velocity-seed replica pairs of the sample case
+(500 atoms, 6 at.% Zn, 300 K): `T_conf - T_K` falls by 0.204 +- 0.013% of T
+(predicted 0.200%), and the NVT elastic constants change by +0.027% (C11),
++0.015% (C12), and +0.035% (C44), below their statistical uncertainties. The
+reference outputs in `sample_case/expected_output` and `benchmarks/expected`
+were produced with version 1.0; the sample case passes with version 1.1 within
+its tolerances, and the references are being regenerated with version 1.1.
+
+## Version 1.0
+
 Two bugs are fixed relative to the previous release. Neither changes any NVT result or any two-element (Cu–Zn) result.
 
 ## 1. NPT elastic constants: ideal-gas pressure in the fluctuating stress
