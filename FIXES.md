@@ -23,8 +23,8 @@ thermostat force and mass, the conserved energy, and the barostat
 (predicted 0.200%), and the NVT elastic constants change by +0.027% (C11),
 +0.015% (C12), and +0.035% (C44), below their statistical uncertainties. The
 reference outputs in `sample_case/expected_output` and `benchmarks/expected`
-were produced with version 1.0; the sample case passes with version 1.1 within
-its tolerances, and the references are being regenerated with version 1.1.
+were produced with version 1.0; version 1.1 passes every check within the
+tolerances.
 
 ## Version 1.0
 

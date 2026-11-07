@@ -91,7 +91,9 @@ The program source in `src/` and `examples/`, the potential data,
 (MD5 `928812de6fe872e058e2fade2c41ded5`) at
 <https://doi.org/10.5281/zenodo.21380003>. The CPC-specific README,
 `sample_case/`, `benchmarks/`, third-party notices, and documentation
-corrections do not modify the deposited program source.
+corrections do not modify the deposited program source. Version 1.1 differs
+from the deposited source in one line of `src/python/molecular_dynamics.py`
+(`FIXES.md`, version 1.1).
 
 ## Requirements
 
@@ -224,7 +226,8 @@ python3 sample_case/run.py \
 
 For the complete 200 ps production phases, compare
 `sample_case_output/result.json` with
-`sample_case/expected_output/result.json`. The manuscript reference values are:
+`sample_case/expected_output/result.json`. The manuscript reference values,
+produced with version 1.0, are:
 
 - NPT mean box length: 18.33463 A;
 - NVT C11: 153.0657 GPa;

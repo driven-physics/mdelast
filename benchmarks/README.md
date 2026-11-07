@@ -88,7 +88,7 @@ For every checked quantity q of Z1 and L1:
 * **tol(q) = 4 × √2 × σ_run(q)**. The factor √2 holds because a re-run is an independent sample compared with one reference sample. The factor 4 keeps the false-alarm probability of the ~30 checks of one benchmark below 0.2% for Gaussian errors.
 * **Conserved energy**: one-sided bounds of three times the largest value seen in the reference run and its velocity replicas.
 
-A run on another compiler or CPU follows a different chaotic trajectory, so it is checked statistically. On the same build, a run reproduces the reference to round-off.
+A run on another compiler or CPU follows a different chaotic trajectory, so it is checked statistically. The reference outputs were produced with version 1.0. Version 1.1 counts 3(N-1) degrees of freedom (`FIXES.md`, entry 3), so its runs also follow different trajectories; version 1.1 passes every check within the tolerances.
 
 The tolerances are deliberately tight enough to detect a different random Zn arrangement. Running Z1 with another placement seed fails the Born-term and volume checks, because the configurational scatter of C^B_11 between arrangements (0.28 GPa) exceeds the tolerance (0.07 GPa).
 Keep the seeds in the scripts: placement seed 42 and velocity seeds 0/0 for Z1; velocity seeds 0/500 for L1. The arrangement comes from NumPy's legacy `RandomState`, whose stream NumPy keeps fixed across versions.
