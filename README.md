@@ -113,7 +113,7 @@ the potential (default; the previous B-spline tables remain available) and the
 The reference environment was Linux x86-64 with:
 
 - GCC 14.2.0 with C++17 support;
-- CMake 3.0 or newer (CMake 4 needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`);
+- CMake 3.13 or newer for the commands below (CMake 4 needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`);
 - Python 3.12 and Python development headers;
 - pybind11 2.13.6;
 - Eigen 3.4.0 (minimum 3.3);

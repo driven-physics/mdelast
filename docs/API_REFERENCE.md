@@ -31,7 +31,7 @@ Inputs and units are detailed in `USAGE.md`.
 
 ### Material helpers
 
-- `get_EAM_file(file_name=..., a_factor=1.0)`: single-element SETFL/FS loader, default
+- `get_EAM_file(*, file_name, a_factor=1.0)`: single-element SETFL/FS loader, default
   tables only. Use `get_potential.get_EAM_file` to choose the interpolation.
 - `get_Cu_Morse(a_factor=1.0)`: analytic Cu Morse material
 - `get_Cu_Table_Morse()`: tabulated version of the Cu Morse material
@@ -159,9 +159,9 @@ public operations are:
 
 - `integrate()`
 - `calculate_neighbors()`
-- `calculate_pair_correlation(...)`
-- `calculate_pair_correlations(...)`
-- `calculate_partial_pair_correlation(...)`
+- `calculate_pair_correlation()`
+- `calculate_pair_correlations()`
+- `calculate_partial_pair_correlation()`
 
 One property is read-write: `sample_observables` (default True). When False, the
 next `integrate()` skips the Born elasticity tensor and the Laplacian, which keep

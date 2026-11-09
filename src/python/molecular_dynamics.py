@@ -373,7 +373,7 @@ class MolecularDynamics:
         # g(r) sampling stride (in MD steps) *after* thermalization.
         # Default of 1 preserves the old "sample every post-thermalization step" behavior.
         self.gr_stride = 1
-        # Observables (stress, Born tensor, T_conf, energies, volume) are computed and stored
+        # Observables (stress, Born tensor, T_conf, energies, volume) are stored
         # every ``sample_stride`` MD steps. The default of 1 samples every step.
         self.sample_stride = 1
         self.thermostat_coupling = MDDriver.THERMOSTAT_KINETIC
@@ -795,7 +795,7 @@ class MolecularDynamics:
                 1.0 / self.series.thermal_results.compressibility
             )
             logger.info(
-                f"bulk_modulus:   {self.series.thermal_results.bulk_modulus/Units.GPa} {bulk_modulus.data[-1]/Units.GPa}[1/GPa]"
+                f"bulk_modulus:   {self.series.thermal_results.bulk_modulus/Units.GPa} {bulk_modulus.data[-1]/Units.GPa}[GPa]"
             )
             assert (
                 abs(self.series.thermal_results.bulk_modulus / bulk_modulus.data[-1] - 1.0) < 1e-4
@@ -1280,6 +1280,6 @@ class MolecularDynamics:
 
         self.runtime = time.time() - self.runtime_begin
         logger.info(f"hostname: {self.hostname}")
-        logger.info(f"rutime was: {self.runtime}")
+        logger.info(f"runtime was: {self.runtime}")
 
         return self

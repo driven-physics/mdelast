@@ -11,6 +11,6 @@ Barostat::Barostat(double const pressure_, double const w_, double const p_epsil
 
 double Barostat::calculate_etot() {
 
-    //----- Barostat part of part of Eq. 9 in: T.-Q. Yu et al. / Chemical Physics 370 (2010) 294305
+    //----- Barostat part of Eq. 9 in: T.-Q. Yu et al. / Chemical Physics 370 (2010) 294305
     return 0.5 * pow<2>(p_epsilon) / w + thermostat.calculate_etot();
 }

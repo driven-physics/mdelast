@@ -108,7 +108,7 @@ struct MDDriver {
     std::vector<double> energies_kin;
     Vector3d momentum_tot; //-- total linear momentum
 
-    std::vector<double> const rg; // cell cenetered, must be evenly spaced
+    std::vector<double> const rg; // cell centered, must be evenly spaced
     std::vector<double> gr;
     std::vector<std::vector<double>> gr_partial;
     double const drg;
@@ -158,7 +158,7 @@ struct MDDriver {
     unsigned long long int cycle;
 
     double const
-        fatal_conservation; // fatal current or initial conservation for which we exit if occured
+        fatal_conservation; // fatal current or initial conservation for which we exit if occurred
 
     // When false, the next integrate() computes only what the dynamics needs (forces, energies,
     // virial and stress). The Born elasticity tensor, the configurational-temperature Laplacian

@@ -5,9 +5,9 @@ verification step can run on any machine that has the output files.
 
 Units in ``series.h5`` are CGS: stresses and elastic constants in dyn/cm^2
 (1 GPa = 1e10 dyn/cm^2), temperatures in K. Every ``series/<q>/data`` array
-holds all MD steps (thermalization + production); production starts at
-``series/<q>/cycles_thermalization``. All values returned here are in GPa, K,
-or dimensionless.
+holds the stored samples (thermalization + production); production starts at
+``series/<q>/cycles_thermalization``. Returned physical quantities use GPa, K, 1/K, and 1/ns.
+Ratios and counts are dimensionless.
 """
 
 from __future__ import annotations

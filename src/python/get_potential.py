@@ -91,7 +91,7 @@ def get_EAM_alloy_file(file_name, interpolation=None):
     dr = float(param_line[3]) * Units.angstrom
     rcut = float(param_line[4]) * Units.angstrom
 
-    r_grid = np.linspace(0.0, dr * (Nr - 1.0), Nr)  # angstrom
+    r_grid = np.linspace(0.0, dr * (Nr - 1.0), Nr)  # cm
     rho_grid = np.linspace(0.0, drho * (Nrho - 1.0), Nrho)
 
     index = 5

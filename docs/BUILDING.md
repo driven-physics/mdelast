@@ -5,7 +5,7 @@
 The extension requires:
 
 - a C++17 compiler
-- CMake 3.0 or newer (CMake 4 needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` at
+- CMake 3.13 or newer for the commands below (CMake 4 needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` at
   configure time, because `src/CMakeLists.txt` declares version 3.0)
 - Python 3 and its development headers
 - pybind11

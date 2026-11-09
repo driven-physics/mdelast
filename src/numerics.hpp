@@ -17,7 +17,7 @@ static expx_result expx_operator(double const x) {
                                      : 1.0 + x * (c1 + x * (c2 + x * (c3 + x * (c4 + x * c5))))};
 }
 
-// Suzuki-Yoshida order 7th coefficients
+// Seven-stage, sixth-order Suzuki-Yoshida coefficients
 //	taken from Tuckerman book eq. 4.11.12
 static std::array<double, 7> constexpr wsy7 = {
     0.784513610477560, 0.235573213359357,

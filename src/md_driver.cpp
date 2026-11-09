@@ -415,7 +415,7 @@ void MDDriver::calculate_forces() {
                 }
             }
 
-            total_laplacian += d2Fdrho2_i * hsq_eam[i]; /// 4.;
+            total_laplacian += d2Fdrho2_i * hsq_eam[i];
         }
     }
 

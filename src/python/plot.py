@@ -89,7 +89,7 @@ def plot_splitted_x(
     ax1.plot((1 - d, 1 + d), (-d, +d), **kwargs)
     ax1.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
 
-    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+    kwargs.update(transform=ax2.transAxes)  # switch to the right axes
     ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
     ax2.plot((-d, +d), (-d, +d), **kwargs)
 
@@ -1066,7 +1066,7 @@ class PlotSeries:
             plt.show()
         plt.close()
 
-        # thermal expnsion coeff
+        # thermal expansion coeff
         plot_splitted_x(
             x1=1.0,
             x2=tmax / 10.0,
