@@ -159,6 +159,12 @@ struct MDDriver {
 
     double const
         fatal_conservation; // fatal current or initial conservation for which we exit if occured
+
+    // When false, the next integrate() computes only what the dynamics needs (forces, energies,
+    // virial and stress). The Born elasticity tensor, the configurational-temperature Laplacian
+    // and |F|^2, and the EAM sums g and h that feed them are skipped and keep their last values.
+    // The trajectory does not depend on this flag (unless the thermostat is coupled to T_conf).
+    bool sample_observables = true;
 };
 
 #endif /* MD_DRIVER_HPP_ */

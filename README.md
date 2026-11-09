@@ -4,7 +4,7 @@
 finite-temperature elastic constants of multi-component embedded-atom-method
 (EAM) alloys from equilibrium stress fluctuations.
 
-This CPC program package, version 1.1, contains the source deposited as
+This CPC program package, version 1.2 (not yet released), contains the source deposited as
 [Zenodo record 21380003](https://doi.org/10.5281/zenodo.21380003), an MIT
 license, user documentation, a complete input/output test based on the
 manuscript's representative 6 at.% Zn alpha-brass calculation, and
@@ -48,6 +48,8 @@ Every distributed file and directory is listed below.
   - `benchmarks/README.md` — what each benchmark checks, how to run and verify it, and runtimes.
   - `benchmarks/verify.py` — compares a run with `benchmarks/expected/` and prints PASS or FAIL for every quantity.
   - `benchmarks/bench_lib.py` — helpers shared by the benchmark scripts.
+  - `benchmarks/update_expected.py` — replaces the expected values of Z1 or L1 by those of a new reference run, keeping the tolerances.
+  - `benchmarks/make_expected_md.py` — renders `benchmarks/expected/*.json` as `EXPECTED.md`.
   - `benchmarks/smoke/run_smoke.py` — benchmark S: static finite-difference checks and short NVE, NVT, and NPT runs.
   - `benchmarks/l12_cuzn3_5K/run.py` — benchmark L1: L1₂ CuZn₃ at 5 K, NPT followed by NVT.
   - `benchmarks/expected/` — expected values and tolerances (`smoke.json`, `zn06_300K.json`, `l12_cuzn3_5K.json`, and the readable `EXPECTED.md`).
@@ -56,6 +58,7 @@ Every distributed file and directory is listed below.
   - `tests/test_averages.py` — statistical-helper unit tests.
   - `tests/test_examples_smoke.py` — short compiled runs of all examples and the NPT-to-NVT sample.
   - `tests/test_reference_data.py` — reference CSV, metadata, and potential-checksum integrity tests.
+  - `tests/test_tables.py` — table interpolation option and properties of the quintic tables.
   - `tests/test_validator.py` — validator pass/fail and tolerance-boundary tests.
 - `src/` — complete program source.
   - `src/CMakeLists.txt` — CMake build definition for the Python extension.
@@ -63,11 +66,12 @@ Every distributed file and directory is listed below.
   - `src/barostat.hpp` — isotropic barostat declarations.
   - `src/barostat_flex.cpp` — flexible-cell barostat implementation.
   - `src/barostat_flex.hpp` — flexible-cell barostat declarations.
-  - `src/eam.hpp` — EAM interpolation and derivative implementation.
+  - `src/eam.hpp` — EAM density and embedding functions with their derivatives.
   - `src/md_driver.cpp` — molecular-dynamics driver implementation.
   - `src/md_driver.hpp` — molecular-dynamics driver declarations.
   - `src/md_driver_module.cpp` — pybind11 Python bindings.
   - `src/numerics.hpp` — numerical helper routines.
+  - `src/poly_table.hpp` — interpolation tables of the potential functions (quintic and B-spline).
   - `src/potential.hpp` — pair-potential classes.
   - `src/thermostat.cpp` — Nose-Hoover-chain thermostat implementation.
   - `src/thermostat.hpp` — thermostat declarations.
@@ -81,6 +85,11 @@ Every distributed file and directory is listed below.
     - `src/python/series.py` — time-series containers and HDF5 serialization.
     - `src/python/vacf.py` — velocity-autocorrelation analysis.
 
+- `tools/` — developer checks of the potential tables.
+  - `tools/test_poly_table.cpp` — C++ unit test of the quintic table class (build command in its header).
+  - `tools/test_table_shape.py` — roots, extrema, inflections, continuity, and accuracy of the tables of a potential file, quintic against B-spline, with plots.
+  - `tools/eval_tables.py` — helper of `test_table_shape.py`.
+
 Generated directories such as `build/` and `sample_case_output/` are not part of
 the distributed package.
 
@@ -93,7 +102,9 @@ The program source in `src/` and `examples/`, the potential data,
 `sample_case/`, `benchmarks/`, third-party notices, and documentation
 corrections do not modify the deposited program source. Version 1.1 differs
 from the deposited source in one line of `src/python/molecular_dynamics.py`
-(`FIXES.md`, version 1.1).
+(`FIXES.md`, version 1.1). Version 1.2 adds the quintic table interpolation of
+the potential (default; the previous B-spline tables remain available) and the
+`sample_stride` option (`FIXES.md`, version 1.2).
 
 ## Requirements
 
@@ -175,8 +186,8 @@ MDELAST_BUILD_DIR=/path/to/build python3 -m unittest discover -s tests -v
 ## Benchmarks
 
 `benchmarks/` holds three benchmarks for verifying an installation: S (static
-checks and short runs, about 2 min), Z1 (the sample case below, about 1.3 h),
-and L1 (L1₂ CuZn₃ at 5 K, about 1.1 h), each on one core.
+checks and short runs, about 1 min), Z1 (the sample case below, about 45 min),
+and L1 (L1₂ CuZn₃ at 5 K, about 40 min), each on one core.
 `benchmarks/verify.py` checks a run against `benchmarks/expected/` and prints
 PASS or FAIL for every quantity. `benchmarks/README.md` gives the commands.
 
@@ -280,11 +291,12 @@ archived software, <https://doi.org/10.5281/zenodo.21380002> (all versions).
 
 ## Runtime estimate
 
-The manuscript's single-core Intel Xeon Gold 6234 measurement for the 500-atom
-6 at.% Zn NPT case was 0.02032087 s per step. Thus 150,000 steps take about
-3,048 s (51 minutes) per stage. Allow approximately 1 hour 42 minutes for the
-complete NPT-plus-NVT workflow on one comparable core; actual time depends on
-hardware and compiler.
+On one core of an Intel Xeon Gold 6534, version 1.2 with its default options
+needs about 8.6 ms per step for the 500-atom 6 at.% Zn case, so the complete
+NPT-plus-NVT workflow (300,000 steps) takes about 43 minutes. With
+`--interpolation bspline` (the tables of versions up to 1.1) it takes about
+1 hour 16 minutes (15.3 ms per step). Actual time depends on hardware and
+compiler.
 
 ## Potential provenance
 

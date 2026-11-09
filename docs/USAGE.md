@@ -32,6 +32,11 @@ no lattice constant — supply `a_lattice` and `N_lattice_side` to
 `get_EAM_alloy_file("ZnCu.eam.alloy")` returns element metadata, pair
 potentials, and EAM objects for an explicit alloy `Material`.
 
+Both EAM loaders take `interpolation="quintic"` (default) or `"bspline"`.
+`"bspline"` selects the cubic B-spline tables of mdelast ≤ 1.1 and reproduces
+results of those versions exactly; see *Table interpolation* in
+`API_REFERENCE.md`.
+
 ## `MolecularDynamics` parameters
 
 The following keyword arguments are required:
@@ -56,6 +61,12 @@ Common optional arguments:
 - `thermostat_coupling`: kinetic, configurational, or average coupling
 - `neighbors`, `r_skin`, `cycles_neigbors`: neighbor-list controls
 - `gr_stride`: post-thermalization radial-distribution sampling interval
+- `sample_stride`: compute and store the observables every N MD steps (default 1).
+  On the other steps the Born elasticity tensor and the configurational-temperature
+  Laplacian are not computed, and no sample is stored; the stress fluctuation term,
+  the Born term, and T_conf are all averaged over the same samples. The trajectory
+  is unchanged. `cycles_thermalization` and `plot_freq` must be multiples of N, and
+  N > 1 requires kinetic thermostat coupling.
 - `initial_velocities`: explicit velocity vectors
 - `random_seed`: deterministic velocity seed
 - `plot_graphs`, `show_graphs`, `slurm_plt`: plotting controls

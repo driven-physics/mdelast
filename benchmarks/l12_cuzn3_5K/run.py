@@ -47,6 +47,10 @@ def parse_args():
     p.add_argument("--production-cycles", type=int, default=100_000)
     p.add_argument("--npt-velocity-seed", type=int, default=0)
     p.add_argument("--nvt-velocity-seed", type=int, default=500)
+    p.add_argument("--sample-stride", type=int, default=1,
+                   help="compute and store the observables every N MD steps (default 1)")
+    p.add_argument("--interpolation", choices=("quintic", "bspline"), default="quintic",
+                   help="table interpolation of the potential (default quintic; bspline = version <= 1.1)")
     return p.parse_args()
 
 
@@ -64,6 +68,7 @@ def main():
     from molecular_dynamics import Material, MolecularDynamics
     import get_potential
 
+    get_potential.DEFAULT_INTERPOLATION = args.interpolation
     elements, potentials, eams = get_potential.get_EAM_alloy_file("ZnCu.eam.alloy")
     name = "-".join(e[0] for e in elements)
     weights = [e[2] for e in elements]
@@ -98,7 +103,7 @@ def main():
             plot_freq=args.production_cycles,
             cycles_end=args.cycles_thermalization + args.production_cycles,
             neighbors=True, r_skin=1.2, cycles_neigbors=20, gr_stride=100,
-            random_seed=seed,
+            random_seed=seed, sample_stride=args.sample_stride,
         ).run()
 
     # ---- stage 1: NPT at zero pressure ------------------------------------
@@ -143,10 +148,12 @@ def main():
     t = nvt.series.thermal_results
     result = {
         "benchmark": "l12_cuzn3_5K",
+        "interpolation": args.interpolation,
         "cycles_thermalization": args.cycles_thermalization,
         "production_cycles": args.production_cycles,
         "npt_velocity_seed": args.npt_velocity_seed,
         "nvt_velocity_seed": args.nvt_velocity_seed,
+        "sample_stride": args.sample_stride,
         "npt_L_L0": float(npt.series.L_L0.mean),
         "nvt_C11_GPa": float(t.elasticity_tensor_11 / Units.GPa),
         "nvt_C12_GPa": float(t.elasticity_tensor_12 / Units.GPa),

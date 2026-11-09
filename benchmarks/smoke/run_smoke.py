@@ -51,6 +51,8 @@ def parse_args():
                    help="directory with md_driver_module*.so (default: <repo>/build/Release)")
     p.add_argument("--output-dir", type=Path, required=True)
     p.add_argument("--skip-dynamics", action="store_true", help="run Part A only")
+    p.add_argument("--interpolation", choices=("quintic", "bspline"), default="quintic",
+                   help="table interpolation of the potential (default quintic; bspline = version <= 1.1)")
     return p.parse_args()
 
 
@@ -327,8 +329,9 @@ def main():
     import md_driver_module as mdm
     import get_potential
     import molecular_dynamics as md_mod
+    get_potential.DEFAULT_INTERPOLATION = args.interpolation
 
-    result = {"benchmark": "smoke", "build_dir": str(build)}
+    result = {"benchmark": "smoke", "build_dir": str(build), "interpolation": args.interpolation}
     t0 = time.time()
     result["static"] = run_static(mdm, get_potential)
     result["static"]["wall_s"] = time.time() - t0

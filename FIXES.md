@@ -1,5 +1,59 @@
 # Fixes in this version
 
+## Version 1.2 (not yet released)
+
+### 4. Table interpolation of the potential
+
+**Files:** `src/poly_table.hpp` (new), `src/potential.hpp`, `src/eam.hpp`,
+`src/md_driver_module.cpp`, `src/python/get_potential.py`
+
+**Change.** Up to version 1.1 every tabulated function (phi(r), rho(r), F(rho))
+was evaluated with three independent cubic B-splines through the node values
+of f, f' and f''; f' and f'' were therefore not the derivatives of the f
+interpolant. The default is now one quintic Hermite polynomial per grid
+interval, built from f, f' and f'' at its two nodes. f' and f'' are the exact
+derivatives of f, f, f' and f'' are continuous across nodes, and one lookup
+returns all three. The previous scheme remains available as
+`interpolation="bspline"` (`docs/API_REFERENCE.md`, "Table interpolation") and
+reproduces version 1.1 bit for bit.
+
+**Effect.** On fixed configurations of the Zn06 benchmark cell the Born tensor
+changes by 4e-8, the configurational temperature by 8e-8 and the forces by
+5e-6 (relative). Forces now agree with -dU/dx to 4e-8 at a 1e-4 A step
+(B-splines: 4e-7). In benchmark S the Born-constant finite-difference residual
+falls from 0.013 to 1.0e-4 GPa and the Laplacian residual from 3.7e-6 to
+2.9e-8. The fixed-cell values of benchmark S change by up to 3.6e-7
+(relative); `benchmarks/expected/smoke.json` lists both sets. MD results
+change only through the different chaotic trajectory. A step costs about half
+as long (benchmark Z1: 2574 s against 4524 s with the B-spline tables, same
+build and node).
+
+### 5. Sampling interval of the observables
+
+**Files:** `src/md_driver.cpp`, `src/md_driver.hpp`, `src/md_driver_module.cpp`,
+`src/python/molecular_dynamics.py`
+
+**Change.** New keyword `sample_stride` of `MolecularDynamics` (default 1):
+the Born tensor, the configurational-temperature sums and the stored samples
+are computed every `sample_stride` steps, while forces and the virial are
+computed at every step. The trajectory does not depend on `sample_stride`.
+
+**Effect.** None for the default `sample_stride = 1`, which is bit-identical to
+version 1.1. With `sample_stride = 10` the standard errors of the elastic
+constants are unchanged (benchmark state: 0.204, 0.155, 0.045 GPa against
+0.204, 0.154, 0.045 GPa for C11, C12, C44).
+
+### Reference values
+
+`benchmarks/expected/zn06_300K.json` and `l12_cuzn3_5K.json` now hold the
+values of version 1.2 reference runs (default options, same seeds); the
+version 1.0 values are kept as `expected_previous` and the tolerances are
+unchanged. The version 1.0 values carry the 3N degrees-of-freedom bias of entry
+3: Z1 runs of version 1.1 already gave an NPT box ratio L/L0 0.77 tolerances
+below the version 1.0 value.
+`sample_case/expected_output` keeps the manuscript values of version 1.0;
+version 1.2 passes all its checks.
+
 ## Version 1.1
 
 ### 3. Degrees of freedom of the thermostat and the kinetic temperature

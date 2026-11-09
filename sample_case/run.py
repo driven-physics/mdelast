@@ -32,6 +32,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--placement-seed", type=int, default=42)
     parser.add_argument("--npt-velocity-seed", type=int, default=0)
     parser.add_argument("--nvt-velocity-seed", type=int, default=0)
+    parser.add_argument(
+        "--interpolation",
+        choices=("quintic", "bspline"),
+        default="quintic",
+        help="table interpolation of the potential (default quintic; bspline = version <= 1.1)",
+    )
+    parser.add_argument(
+        "--sample-stride",
+        type=int,
+        default=1,
+        help="compute and store the observables every N MD steps (default 1)",
+    )
     return parser.parse_args()
 
 
@@ -80,6 +92,7 @@ def run_stage(
     thermalization: int,
     production: int,
     velocity_seed: int,
+    sample_stride: int = 1,
 ):
     return MolecularDynamics(
         work_dir=str(work_dir),
@@ -104,12 +117,13 @@ def run_stage(
         cycles_neigbors=20,
         gr_stride=100,
         random_seed=velocity_seed,
+        sample_stride=sample_stride,
     ).run()
 
 
 def stage_summary(md, Units, include_elasticity: bool) -> dict[str, float]:
     configurational_samples = 1.0 / np.asarray(
-        md.series.temperature_conf_inverse.data[md.cycles_thermalization :]
+        md.series.temperature_conf_inverse.data[md.samples_thermalization :]
     )
     result = {
         "box_length_A": float(md.Lx * md.series.L_L0.mean / Units.angstrom),
@@ -147,7 +161,7 @@ def write_decimated_series(path: Path, md, Units, include_elasticity: bool) -> N
         indices = np.append(indices, len(time) - 1)
 
     columns = {
-        "step": indices,
+        "step": (indices + 1) * md.sample_stride,
         "time_ps": time[indices] / Units.ps,
         "temperature_kinetic_K": np.asarray(md.series.temperature_kin.data)[indices],
         "temperature_configurational_K": (
@@ -202,6 +216,7 @@ def main() -> int:
     from molecular_dynamics import Material, MolecularDynamics
     import get_potential
 
+    get_potential.DEFAULT_INTERPOLATION = args.interpolation
     elements, potentials, eams = get_potential.get_EAM_alloy_file("ZnCu.eam.alloy")
     positions, initial_length = build_fcc_lattice(
         Vector3d, Units, 3.6345 * Units.angstrom, side=5
@@ -230,6 +245,7 @@ def main() -> int:
         args.cycles_thermalization,
         args.production_cycles,
         args.npt_velocity_seed,
+        args.sample_stride,
     )
 
     # Reproduce the manuscript handoff exactly: read the final NPT trajectory
@@ -277,6 +293,7 @@ def main() -> int:
         args.cycles_thermalization,
         args.production_cycles,
         args.nvt_velocity_seed,
+        args.sample_stride,
     )
 
     result = {
@@ -286,6 +303,8 @@ def main() -> int:
         "placement_seed": args.placement_seed,
         "npt_velocity_seed": args.npt_velocity_seed,
         "nvt_velocity_seed": args.nvt_velocity_seed,
+        "sample_stride": args.sample_stride,
+        "interpolation": args.interpolation,
         "npt": stage_summary(npt, Units, include_elasticity=False),
         "nvt": stage_summary(nvt, Units, include_elasticity=True),
     }

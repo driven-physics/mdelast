@@ -3,6 +3,7 @@
 #include <pybind11/eigen.h>
 
 #include <memory>
+#include <string>
 #include "md_driver.hpp"
 #include "units.hpp"
 #include "potential.hpp"
@@ -57,13 +58,25 @@ void bind_module(pybind11::module &m) {
     pybind11::class_<potential::TablePotential, potential::Potential,
                      std::shared_ptr<potential::TablePotential>>(m, "TablePotential")
         .def(pybind11::init<double const, double const, double const, std::vector<double> const &,
-                            std::vector<double> const &, std::vector<double> const &>());
+                            std::vector<double> const &, std::vector<double> const &>())
+        .def(pybind11::init<double const, double const, double const, std::vector<double> const &,
+                            std::vector<double> const &, std::vector<double> const &,
+                            std::string const &>())
+        .def_property_readonly("interpolation",
+                               [](potential::TablePotential const &p) { return p.table.name; });
 
     pybind11::class_<potential::EAM, std::shared_ptr<potential::EAM>>(m, "EAM")
         .def(pybind11::init<double const, double const, double const, double const,
                             std::vector<double> const &, std::vector<double> const &,
                             std::vector<double> const &, std::vector<double> const &,
                             std::vector<double> const &, std::vector<double> const &>())
+        .def(pybind11::init<double const, double const, double const, double const,
+                            std::vector<double> const &, std::vector<double> const &,
+                            std::vector<double> const &, std::vector<double> const &,
+                            std::vector<double> const &, std::vector<double> const &,
+                            std::string const &>())
+        .def_property_readonly("interpolation",
+                               [](potential::EAM const &e) { return e.table_rho.name; })
         .def("rho", &potential::EAM::rho)
         .def("drhodr", &potential::EAM::drhodr)
         .def("d2rhodr2", &potential::EAM::d2rhodr2)
@@ -121,6 +134,7 @@ void bind_module(pybind11::module &m) {
         .def_readonly("gr", &MDDriver::gr)
         .def_readonly("gr_partial", &MDDriver::gr_partial)
         .def_readonly("fatal_conservation", &MDDriver::fatal_conservation)
+        .def_readwrite("sample_observables", &MDDriver::sample_observables)
         .def_readonly("mass", &MDDriver::mass)
         .def_readonly("types", &MDDriver::types)
         .def_readonly("Nparticles_per_type", &MDDriver::Nparticles_per_type)

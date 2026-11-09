@@ -31,7 +31,7 @@ Inputs and units are detailed in `USAGE.md`.
 
 ### Material helpers
 
-- `get_EAM_file(file_name=..., a_factor=1.0)`: single-element SETFL/FS loader
+- `get_EAM_file(file_name=..., a_factor=1.0, interpolation=None)`: single-element SETFL/FS loader
 - `get_Cu_Morse(a_factor=1.0)`: analytic Cu Morse material
 - `get_Cu_Table_Morse()`: tabulated version of the Cu Morse material
 - `get_Ar_LJ(epsilon=None, sigma=None, rcut_fac=3.5)`: Ar Lennard-Jones material
@@ -40,8 +40,8 @@ Inputs and units are detailed in `USAGE.md`.
 
 ## Potential-file API
 
-`get_potential.get_EAM_alloy_file(file_name)` reads a multi-element LAMMPS
-SETFL alloy file and returns:
+`get_potential.get_EAM_alloy_file(file_name, interpolation=None)` reads a
+multi-element LAMMPS SETFL alloy file and returns:
 
 1. element records `[symbol, atomic_number, atomic_weight, lattice_constant]`;
 2. pair potentials in triangular pair ordering;
@@ -50,6 +50,28 @@ SETFL alloy file and returns:
 Potential files are resolved from the top-level `potentials/` directory. The
 single-element `get_EAM_file` and Lennard-Jones helper are retained for
 compatibility.
+
+### Table interpolation
+
+The tabulated functions φ(r), ρ(r) and F(ρ) are evaluated with one of two
+schemes, chosen by the `interpolation` argument of `get_EAM_alloy_file` and
+`get_EAM_file`:
+
+| value | scheme |
+|---|---|
+| `"quintic"` (default) | one quintic Hermite polynomial per grid interval, built from f, f′, f″ at its two nodes; f′ and f″ are the exact derivatives of f and are continuous across nodes |
+| `"bspline"` | three independent cubic B-splines through the node values of f, f′ and f″ — the scheme of mdelast ≤ 1.1, kept to reproduce earlier results bit for bit |
+
+`interpolation=None` uses the module default `get_potential.DEFAULT_INTERPOLATION`
+(`"quintic"`); assigning it changes the default for every later load in the
+process. Any other value raises `ValueError`.
+
+```python
+elements, potentials, eams = get_potential.get_EAM_alloy_file("ZnCu.eam.alloy", interpolation="bspline")
+material = get_potential.get_EAM_file(file_name="Cu01.eam.alloy.txt", interpolation="bspline")
+```
+
+The `"bspline"` scheme needs at least 5 grid points per table.
 
 ## Time-series API
 
@@ -107,8 +129,14 @@ the run loop:
 - `PotentialValue`: returned `V`, `dVdr`, and `d2Vdr2`
 - `Morse(rcut, D, alpha, r0)`
 - `LennardJones(rcut, epsilon, sigma)`
-- `TablePotential`: spline tables for energy and two derivatives
-- `EAM`: density and embedding splines with their derivatives
+- `TablePotential(rcut, rmin_fatal, dr, V, dVdr, d2Vdr2[, interpolation])`:
+  tabulated pair potential with two derivatives
+- `EAM(rcut, rhomax_fatal, dr, drho, rho, drhodr, d2rhodr2, F, dFdrho, d2Fdrho2[, interpolation])`:
+  tabulated density ρ(r) and embedding function F(ρ) with their derivatives
+
+  For both, the optional last positional argument is the string `"quintic"`
+  (default) or `"bspline"` (see *Table interpolation*); the choice is readable
+  as the `.interpolation` attribute.
 - `PotentialVector` and `EAMVector`: pybind11 vector containers
 
 ### Extended-system controls

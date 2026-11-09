@@ -23,6 +23,22 @@ if len(logging.root.handlers) == 0:
     logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("MD")
 
+# Interpolation of the tabulated potential functions (phi(r), rho(r), F(rho)):
+#   "quintic"  piecewise quintic Hermite tables (default; f' and f'' are the exact derivatives
+#              of the f interpolant, C2 across nodes, ~2x faster)
+#   "bspline"  three independent cubic B-splines per function for f, f', f'' -- the scheme of
+#              mdelast <= 1.1, kept to reproduce earlier results
+# The loaders below take ``interpolation=``; when it is omitted this module default is used.
+DEFAULT_INTERPOLATION = "quintic"
+INTERPOLATIONS = ("quintic", "bspline")
+
+
+def _interp(interpolation):
+    choice = DEFAULT_INTERPOLATION if interpolation is None else interpolation
+    if choice not in INTERPOLATIONS:
+        raise ValueError(f"interpolation must be one of {INTERPOLATIONS}, got {choice!r}")
+    return choice
+
 
 def get_deriv(x, y):
     """Return midpoint coordinates and first finite-difference derivatives."""
@@ -39,7 +55,7 @@ def get_derivatives(x, y):
     return dydx, d2ydx2
 
 
-def get_EAM_alloy_file(file_name):
+def get_EAM_alloy_file(file_name, interpolation=None):
     """Load a multi-element LAMMPS SETFL alloy potential.
 
     Returns
@@ -55,7 +71,8 @@ def get_EAM_alloy_file(file_name):
 
     pot_dir = path.join(path.dirname(path.abspath(__file__)), "../../potentials")
     file_path = path.join(pot_dir, file_name)
-    logger.info(f"Reading file potential... '{file_path}'")
+    interpolation = _interp(interpolation)
+    logger.info(f"Reading file potential... '{file_path}' (table interpolation: {interpolation})")
 
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -97,7 +114,8 @@ def get_EAM_alloy_file(file_name):
         dFdrho, d2Fdrho = get_derivatives(x=rho_grid, y=F)
         eams.append(
             md_driver_module.EAM(
-                r_grid[-1], rho_grid[-1], dr, drho, rho, drhodr, d2rhodr2, F, dFdrho, d2Fdrho
+                r_grid[-1], rho_grid[-1], dr, drho, rho, drhodr, d2rhodr2, F, dFdrho, d2Fdrho,
+                interpolation,
             )
         )
         index += Nrho + Nr
@@ -113,7 +131,7 @@ def get_EAM_alloy_file(file_name):
         dphidr, d2phidr2 = get_derivatives(x=r_grid, y=phi)
 
         potentials[pot_index] = md_driver_module.TablePotential(
-            r_grid[-1], rmin_fatal, dr, phi, dphidr, d2phidr2
+            r_grid[-1], rmin_fatal, dr, phi, dphidr, d2phidr2, interpolation
         )
 
         index += Nr
@@ -129,7 +147,7 @@ def get_EAM_alloy_file(file_name):
     return elements, potentials, eams
 
 
-def get_EAM_file(*, file_name, a_factor=1.0):
+def get_EAM_file(*, file_name, a_factor=1.0, interpolation=None):
     """Load a supported single-element EAM file as a ``Material``."""
 
     # SETFL potential files taken from:
@@ -229,10 +247,11 @@ def get_EAM_file(*, file_name, a_factor=1.0):
         atomic_weight=atomic_weight,
         atom_name="Cu",
         potential=md_driver_module.TablePotential(
-            r_grid[-1], rmin_fatal, dr, phi, dphidr, d2phidr2
+            r_grid[-1], rmin_fatal, dr, phi, dphidr, d2phidr2, _interp(interpolation)
         ),
         eam=md_driver_module.EAM(
-            r_grid[-1], rho_grid[-1], dr, drho, rho, drhodr, d2rhodr2, F, dFdrho, d2Fdrho
+            r_grid[-1], rho_grid[-1], dr, drho, rho, drhodr, d2rhodr2, F, dFdrho, d2Fdrho,
+            _interp(interpolation),
         ),
         a_lattice=a_lattice * a_factor,
     )

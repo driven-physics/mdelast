@@ -67,7 +67,17 @@ def verify_json_benchmark(name, out_dir, expected_path):
         rep.add("FAIL", f"{res_path} not found")
         return rep
     res = bench_lib.load_json(res_path)
+    # Fixed-configuration values depend on the table interpolation of the potential; outputs
+    # written before version 1.2 carry no "interpolation" field and used the B-spline tables.
+    interp = res.get("interpolation", "bspline")
+    print(f" table interpolation: {interp}")
     for key, spec in exp["checks"].items():
+        by = spec.get("expected_by_interpolation")
+        if by is not None:
+            if interp not in by:
+                rep.add("FAIL", f"{key}: no expected value for interpolation '{interp}'")
+                continue
+            spec = dict(spec, expected=by[interp], tol=spec["rel_tol"] * abs(by[interp]))
         val = dotted(res, key)
         rep.check(key, None if val is None else float(val), spec)
     return rep

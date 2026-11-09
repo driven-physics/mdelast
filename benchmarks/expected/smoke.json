@@ -1,110 +1,145 @@
 {
  "benchmark": "smoke",
- "source": "runs/revision/repro/smoke_public (public code build)",
+ "source": "fixed-cell values: one value per table interpolation of the potential; quintic from version 1.2 (default), bspline from versions <= 1.1 (identical to version 1.2 with interpolation='bspline'). Finite-difference and dynamics bounds apply to both.",
  "runtime_s_one_core": 127,
  "checks": {
   "static.net_force_rel": {
    "max": 1e-12,
-   "observed": 2.9273888219043424e-15
+   "observed_bspline": 2.9273888219043424e-15,
+   "observed_quintic": 1.2957294786441892e-15
   },
   "static.force_fd_max_abs_err_eV_A": {
    "max": 2e-05,
    "unit": "eV/A",
-   "observed": 3.679493137774854e-06
+   "observed_bspline": 3.679493137774854e-06,
+   "observed_quintic": 3.642417156672244e-06
   },
   "static.born_stress_fd_max_abs_err_GPa": {
    "max": 1e-05,
    "unit": "GPa",
-   "observed": 1.214144522857666e-06
+   "observed_bspline": 1.214144522857666e-06,
+   "observed_quintic": 1.5458006858825684e-06
   },
   "static.born_C_fd_max_abs_err_GPa": {
    "max": 0.05,
    "unit": "GPa",
-   "observed": 0.012882371796081316
+   "observed_bspline": 0.012882371796081316,
+   "observed_quintic": 0.00010466329780456363
   },
   "static.laplacian_fd_rel_err": {
    "max": 2e-05,
-   "observed": 3.6912116878251054e-06
+   "observed_bspline": 3.6912116878251054e-06,
+   "observed_quintic": 2.8878704691673216e-08
   },
   "static.static_epot_eV_per_atom": {
-   "expected": -3.499178009833739,
-   "tol": 3.4991780098337387e-07,
+   "expected_by_interpolation": {
+    "quintic": -3.4991780097856267,
+    "bspline": -3.499178009833739
+   },
+   "rel_tol": 1e-07,
    "unit": "eV"
   },
   "static.static_pressure_GPa": {
-   "expected": 5.131072141960654,
-   "tol": 5.131072141960654e-07,
+   "expected_by_interpolation": {
+    "quintic": 5.131070278824088,
+    "bspline": 5.131072141960654
+   },
+   "rel_tol": 1e-07,
    "unit": "GPa"
   },
   "static.static_CB11_GPa": {
-   "expected": 197.39640099071525,
-   "tol": 1.9739640099071524e-05,
+   "expected_by_interpolation": {
+    "quintic": 197.396394290823,
+    "bspline": 197.39640099071525
+   },
+   "rel_tol": 1e-07,
    "unit": "GPa"
   },
   "static.static_CB12_GPa": {
-   "expected": 126.57573188386776,
-   "tol": 1.2657573188386775e-05,
+   "expected_by_interpolation": {
+    "quintic": 126.57572916993081,
+    "bspline": 126.57573188386776
+   },
+   "rel_tol": 1e-07,
    "unit": "GPa"
   },
   "static.static_CB44_GPa": {
-   "expected": 92.13965579273138,
-   "tol": 9.213965579273137e-06,
+   "expected_by_interpolation": {
+    "quintic": 92.13965308038063,
+    "bspline": 92.13965579273138
+   },
+   "rel_tol": 1e-07,
    "unit": "GPa"
   },
   "static.laplacian_eV_A2": {
-   "expected": 6567.7703846347085,
-   "tol": 0.0006567770384634708,
+   "expected_by_interpolation": {
+    "quintic": 6567.770288513715,
+    "bspline": 6567.7703846347085
+   },
+   "rel_tol": 1e-07,
    "unit": "eV/A^2"
   },
   "static.static_T_conf_K": {
-   "expected": 1000.1204874537741,
-   "tol": 0.00010001204874537741,
+   "expected_by_interpolation": {
+    "quintic": 1000.1204850339506,
+    "bspline": 1000.1204874537741
+   },
+   "rel_tol": 1e-07,
    "unit": "K"
   },
   "dynamics.nve_dt_ratio": {
    "min": 3.5,
    "max": 4.5,
-   "observed": 3.9982834590204637
+   "observed_bspline": 3.9982834590204637,
+   "observed_quintic": 3.9980676124612904
   },
   "dynamics.nve_dt2.econs_err_max": {
    "max": 5e-05,
-   "observed": 1.0573919735690218e-05
+   "observed_bspline": 1.0573919735690218e-05,
+   "observed_quintic": 1.057399638171308e-05
   },
   "dynamics.nve_dt1.econs_err_max": {
    "max": 1.5e-05,
-   "observed": 2.654354539277648e-06
+   "observed_bspline": 2.654354539277648e-06,
+   "observed_quintic": 2.6543147423341296e-06
   },
   "dynamics.nvt.econs_err_max": {
    "max": 5e-05,
-   "observed": 1.3704527183855397e-05
+   "observed_bspline": 1.3704527183855397e-05,
+   "observed_quintic": 1.3603703717723903e-05
   },
   "dynamics.npt.econs_err_max": {
    "max": 5e-05,
-   "observed": 1.2208069872454708e-05
+   "observed_bspline": 1.2208069872454708e-05,
+   "observed_quintic": 1.2301753378407554e-05
   },
   "dynamics.nvt.T_kin": {
    "min": 290.0,
    "max": 310.0,
    "unit": "K",
-   "observed": 299.9726305444797
+   "observed_bspline": 299.9726305444797,
+   "observed_quintic": 303.0112496989708
   },
   "dynamics.nvt.T_conf_recip": {
    "min": 285.0,
    "max": 315.0,
    "unit": "K",
-   "observed": 302.50620344257345
+   "observed_bspline": 302.50620344257345,
+   "observed_quintic": 304.9378355867797
   },
   "dynamics.npt.T_kin": {
    "min": 290.0,
    "max": 310.0,
    "unit": "K",
-   "observed": 299.7497042431177
+   "observed_bspline": 299.7497042431177,
+   "observed_quintic": 301.172444503826
   },
   "dynamics.npt.T_conf_recip": {
    "min": 285.0,
    "max": 315.0,
    "unit": "K",
-   "observed": 300.4121798952265
+   "observed_bspline": 300.4121798952265,
+   "observed_quintic": 301.6513316133726
   }
  }
 }

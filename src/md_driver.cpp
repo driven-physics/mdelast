@@ -196,11 +196,15 @@ void MDDriver::calculate_eam() {
     if (not has_eam)
         return;
 
-    std::fill(rho_eam.begin(), rho_eam.end(), 0.);
-    std::fill(h_eam.begin(), h_eam.end(), Vector3d(0., 0., 0.));
+    // g and h (and F'') feed only the Born tensor and the T_conf Laplacian.
+    bool const observables = sample_observables;
 
-    for (auto &g : g_eam)
-        g.fill(0.);
+    std::fill(rho_eam.begin(), rho_eam.end(), 0.);
+    if (observables) {
+        std::fill(h_eam.begin(), h_eam.end(), Vector3d(0., 0., 0.));
+        for (auto &g : g_eam)
+            g.fill(0.);
+    }
 
     for (unsigned int i = 0; i < Nparticles; ++i) {
         auto const &ci = coordinates[i];
@@ -238,6 +242,9 @@ void MDDriver::calculate_eam() {
             rho_i += rho_ij;
             rho_eam[j] += rho_ji;
 
+            if (not observables)
+                continue;
+
             Vector6d &g_j = g_eam[j];
             // For rho_i we add rho_{type_j}(r_ij); for rho_j we add rho_{type_i}(r_ij).
             // Therefore derivatives must follow the same type mapping.
@@ -262,9 +269,10 @@ void MDDriver::calculate_eam() {
         unsigned int const type_i = types[i];
         F_eam[i] = eam[type_i]->F(rho);
         dFdrho_eam[i] = eam[type_i]->dFdrho(rho);
-        d2Fdrho2_eam[i] = eam[type_i]->d2Fdrho2(rho);
-
-        hsq_eam[i] = h_eam[i].length2();
+        if (observables) {
+            d2Fdrho2_eam[i] = eam[type_i]->d2Fdrho2(rho);
+            hsq_eam[i] = h_eam[i].length2();
+        }
     }
 }
 
@@ -293,12 +301,18 @@ void MDDriver::calculate_forces() {
 
     calculate_eam();
 
+    // Forces, energies, the virial and the Born stress are needed every step. The Born
+    // elasticity tensor and the Laplacian are computed only when observables are sampled.
+    bool const observables = sample_observables;
+
     std::fill(forces.begin(), forces.end(), Vector3d(0., 0., 0.));
     std::fill(energies_pot.begin(), energies_pot.end(), 0.);
     virial = 0.;
     born_stress_tensor.fill(0.);
-    born_elasticity_tensor.fill(0.);
-    total_laplacian = 0.;
+    if (observables) {
+        born_elasticity_tensor.fill(0.);
+        total_laplacian = 0.;
+    }
 
     for (unsigned int i = 0; i < Nparticles; ++i) {
         auto &fi = forces[i];
@@ -332,28 +346,34 @@ void MDDriver::calculate_forces() {
             auto const result = pot[pot_index]->calculate(dr);
 
             double dedr = result.dVdr;
-            double Xij = result.d2Vdr2 - result.dVdr / dr;
-            total_laplacian += 2. * (result.d2Vdr2 + 2. * result.dVdr / dr);
+            double Xij = 0.;
+            if (observables) {
+                Xij = result.d2Vdr2 - result.dVdr / dr;
+                total_laplacian += 2. * (result.d2Vdr2 + 2. * result.dVdr / dr);
+            }
 
             if (has_eam) {
                 double const drhodr_i = eam[type_i]->drhodr(dr);
-                double const d2rhodr2_i = eam[type_i]->d2rhodr2(dr);
                 double const drhodr_j = eam[type_j]->drhodr(dr);
-                double const d2rhodr2_j = eam[type_j]->d2rhodr2(dr);
                 double const dFdrho_j = dFdrho_eam[j];
 
                 dedr += dFdrho_i * drhodr_j + dFdrho_j * drhodr_i;
 
-                total_laplacian += 2. * (dFdrho_j * (d2rhodr2_i + 2. * drhodr_i / dr) +
-                                         dFdrho_i * (d2rhodr2_j + 2. * drhodr_j / dr));
-                total_laplacian +=
-                    d2Fdrho2_i * pow<2>(drhodr_j) + d2Fdrho2_eam[j] * pow<2>(drhodr_i);
+                if (observables) {
+                    double const d2rhodr2_i = eam[type_i]->d2rhodr2(dr);
+                    double const d2rhodr2_j = eam[type_j]->d2rhodr2(dr);
 
-                // EAM contribution to the Born term (matches the single-component form):
-                // X_ij += (dF_i * d²ρ_j/dr² + dF_j * d²ρ_i/dr²) - (dF_i * dρ_j/dr + dF_j *
-                // dρ_i/dr)/r
-                Xij += dFdrho_i * (d2rhodr2_j - drhodr_j / dr) +
-                       dFdrho_j * (d2rhodr2_i - drhodr_i / dr);
+                    total_laplacian += 2. * (dFdrho_j * (d2rhodr2_i + 2. * drhodr_i / dr) +
+                                             dFdrho_i * (d2rhodr2_j + 2. * drhodr_j / dr));
+                    total_laplacian +=
+                        d2Fdrho2_i * pow<2>(drhodr_j) + d2Fdrho2_eam[j] * pow<2>(drhodr_i);
+
+                    // EAM contribution to the Born term (matches the single-component form):
+                    // X_ij += (dF_i * d²ρ_j/dr² + dF_j * d²ρ_i/dr²) - (dF_i * dρ_j/dr + dF_j *
+                    // dρ_i/dr)/r
+                    Xij += dFdrho_i * (d2rhodr2_j - drhodr_j / dr) +
+                           dFdrho_j * (d2rhodr2_i - drhodr_i / dr);
+                }
             }
 
             Xij /= pow<2>(dr);
@@ -376,6 +396,8 @@ void MDDriver::calculate_forces() {
                 double const num = dp[ii] * dp[jj];
                 born_stress_tensor(iv) += dedr * num / dr;
 
+                if (not observables)
+                    continue;
                 for (unsigned int ivp = iv; ivp < 6; ++ivp) {
                     unsigned int const iip = voigt_first_index[ivp];
                     unsigned int const jjp = voigt_second_index[ivp];
@@ -385,7 +407,7 @@ void MDDriver::calculate_forces() {
             }
         }
 
-        if (has_eam) {
+        if (has_eam and observables) {
             Vector6d const &g_i = g_eam[i];
             for (unsigned int iv = 0; iv < 6; ++iv) {
                 for (unsigned int ivp = iv; ivp < 6; ++ivp) {
@@ -606,6 +628,10 @@ void MDDriver::set_momentum_tot() {
 }
 
 void MDDriver::calculate_configurational_temperature() {
+    // The Laplacian is current only on sampled steps; otherwise keep the last sampled T_conf.
+    if (not sample_observables)
+        return;
+
     total_force2 = 0.;
 
     for (auto const &f : forces) {
@@ -660,7 +686,9 @@ void MDDriver::calculate_thermodynamics() {
     }
     stress_tensor /= box.volume();
     born_stress_tensor /= box.volume();
-    born_elasticity_tensor /= box.volume();
+    if (sample_observables) {
+        born_elasticity_tensor /= box.volume();
+    }
 
     double const p_trace = stress_tensor[0] + stress_tensor[1] + stress_tensor[2];
     double p_err = std::abs(pressure / (p_trace / 3.) - 1.);

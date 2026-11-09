@@ -65,11 +65,14 @@ def summarize_run(h5_path) -> dict:
 
     with h5py.File(Path(h5_path), "r") as h5:
         tr = h5["thermal_results"]
+        # n0 indexes the stored samples; one sample is stored every `stride` MD steps
         n0 = int(h5["series/temperature_kin/cycles_thermalization"][()])
-        n_steps = int(len(h5["series/time"][()]))
+        stride = int(tr["sample_stride"][()]) if "sample_stride" in tr else 1
+        n_steps = int(len(h5["series/time"][()])) * stride
         out = {
             "n_steps": n_steps,
-            "n_thermalization": n0,
+            "n_thermalization": n0 * stride,
+            "sample_stride": stride,
             "C11": float(tr["elasticity_tensor_11"][()]) / GPA,
             "C12": float(tr["elasticity_tensor_12"][()]) / GPA,
             "C44": float(tr["elasticity_tensor_44"][()]) / GPA,

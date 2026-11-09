@@ -7,7 +7,8 @@
  "source": {
   "reference": "runs/runs_alloys/brass_heat/{npt,nvt}/Zn_06/T_300 (manuscript Sec. 5.1 run, Figs. 1-5; identical to mdelast sample_case/expected_output/result.json)",
   "velocity_replicas": "runs/error_bars/Zn06_300K_velocity_0..8 (placement seed 100, velocity seeds 200-208; manuscript Fig. 11 / Sec. 5.3)",
-  "se": "fig_code/autocorr.py (stream B3)"
+  "se": "fig_code/autocorr.py (stream B3)",
+  "expected_values": "version 1.2 reference run (default options: quintic table interpolation, sample_stride 1; same seeds as the version 1.0 reference)"
  },
  "stages": {
   "npt": {
@@ -17,85 +18,97 @@
    "n_thermalization": 50000,
    "quantities": {
     "L_L0": {
-     "expected": 1.0089217268874575,
+     "expected": 1.0089030761549767,
      "tol": 1.7e-05,
      "unit": "",
      "se_run": 2.988447050228845e-06,
-     "s_vel": 2.8924900544643036e-06
+     "s_vel": 2.8924900544643036e-06,
+     "expected_previous": 1.0089217268874575
     },
     "C44": {
-     "expected": 71.86650355737075,
+     "expected": 72.04482328580028,
      "tol": 0.32,
      "unit": "GPa",
      "se_run": 0.05246060349013191,
-     "s_vel": 0.05505786115985065
+     "s_vel": 0.05505786115985065,
+     "expected_previous": 71.86650355737075
     },
     "CB11": {
-     "expected": 163.3944152439303,
+     "expected": 163.42024869379213,
      "tol": 0.056,
      "unit": "GPa",
      "se_run": 0.0053997719167641536,
-     "s_vel": 0.009815258469018949
+     "s_vel": 0.009815258469018949,
+     "expected_previous": 163.3944152439303
     },
     "CB12": {
-     "expected": 108.18778132809936,
+     "expected": 108.20181403384625,
      "tol": 0.045,
      "unit": "GPa",
      "se_run": 0.0045264507594910165,
-     "s_vel": 0.007895807055774001
+     "s_vel": 0.007895807055774001,
+     "expected_previous": 108.18778132809936
     },
     "CB44": {
-     "expected": 76.06262662727914,
+     "expected": 76.07771135838605,
      "tol": 0.025,
      "unit": "GPa",
      "se_run": 0.003170570756241603,
-     "s_vel": 0.004399031976303842
+     "s_vel": 0.004399031976303842,
+     "expected_previous": 76.06262662727914
     },
     "T_kin": {
-     "expected": 300.17234296390376,
+     "expected": 299.90152747718275,
      "tol": 0.79,
      "unit": "K",
      "se_run": 0.13884207369305335,
-     "s_vel": 0.13697127313639954
+     "s_vel": 0.13697127313639954,
+     "expected_previous": 300.17234296390376
     },
     "T_conf_recip": {
-     "expected": 300.63217240253056,
+     "expected": 299.6053170855525,
      "tol": 2.8000000000000003,
      "unit": "K",
      "se_run": 0.32983812674537955,
-     "s_vel": 0.4906024296381899
+     "s_vel": 0.4906024296381899,
+     "expected_previous": 300.63217240253056
     },
     "T_conf_sample": {
-     "expected": 301.2191352438581,
+     "expected": 300.19270183708204,
      "tol": 2.8000000000000003,
      "unit": "K",
      "se_run": 0.3282003263893283,
-     "s_vel": 0.4895389887693981
+     "s_vel": 0.4895389887693981,
+     "expected_previous": 301.2191352438581
     },
     "pressure": {
-     "expected": 9.164175382517136e-06,
+     "expected": -2.384082912917936e-05,
      "tol": 0.00097,
      "unit": "GPa",
      "se_run": 0.00017009424841645616,
-     "s_vel": 3.752662120086343e-05
+     "s_vel": 3.752662120086343e-05,
+     "expected_previous": 9.164175382517136e-06
     },
     "C11": {
-     "expected": 146.7652,
+     "expected": 151.74838623183737,
      "info": "NPT C11/C12 re-evaluated from the reference run with the corrected NPT estimator (ideal-gas pressure kept in the fluctuating stress, FIXES.md item 1); not checked, see README section 6",
      "unit": "GPa",
-     "se_run": 11.164125045803646
+     "se_run": 11.164125045803646,
+     "expected_previous": 146.7652
     },
     "C12": {
-     "expected": 96.278,
+     "expected": 101.32128410862524,
      "info": "NPT C11/C12 re-evaluated from the reference run with the corrected NPT estimator (ideal-gas pressure kept in the fluctuating stress, FIXES.md item 1); not checked, see README section 6",
      "unit": "GPa",
-     "se_run": 11.165624214916404
+     "se_run": 11.165624214916404,
+     "expected_previous": 96.278
     },
     "K_npt": {
-     "expected": 116.73573462876072,
+     "expected": 119.23034334359424,
      "info": "NPT C11/C12/K use the printed NPT estimator; see README, decision (b)",
      "unit": "GPa",
-     "se_run": null
+     "se_run": null,
+     "expected_previous": 116.73573462876072
     },
     "econs_err_max": {
      "max": 4.4999999999999996e-05,
@@ -132,102 +145,116 @@
    "n_thermalization": 50000,
    "quantities": {
     "C11": {
-     "expected": 153.0656991761722,
+     "expected": 153.2387496451007,
      "tol": 1.0,
      "unit": "GPa",
      "se_run": 0.17547618788108763,
-     "s_vel": 0.10561526199348202
+     "s_vel": 0.10561526199348202,
+     "expected_previous": 153.0656991761722
     },
     "C12": {
-     "expected": 102.62897230809152,
+     "expected": 102.63018132673642,
      "tol": 0.88,
      "unit": "GPa",
      "se_run": 0.15396181626967217,
-     "s_vel": 0.1222261354214977
+     "s_vel": 0.1222261354214977,
+     "expected_previous": 102.62897230809152
     },
     "C44": {
-     "expected": 71.89331964229989,
+     "expected": 71.94728194956156,
      "tol": 0.42,
      "unit": "GPa",
      "se_run": 0.058288327066554894,
-     "s_vel": 0.07376023339680986
+     "s_vel": 0.07376023339680986,
+     "expected_previous": 71.89331964229989
     },
     "CB11": {
-     "expected": 163.3698717247172,
+     "expected": 163.39630986310823,
      "tol": 0.069,
      "unit": "GPa",
      "se_run": 0.006487241352038849,
-     "s_vel": 0.0120226805319502
+     "s_vel": 0.0120226805319502,
+     "expected_previous": 163.3698717247172
     },
     "CB12": {
-     "expected": 108.17054186599873,
+     "expected": 108.18201959113242,
      "tol": 0.05,
      "unit": "GPa",
      "se_run": 0.005440623172626708,
-     "s_vel": 0.008804962747529507
+     "s_vel": 0.008804962747529507,
+     "expected_previous": 108.17054186599873
     },
     "CB44": {
-     "expected": 76.05301734628164,
+     "expected": 76.07133044326014,
      "tol": 0.033,
      "unit": "GPa",
      "se_run": 0.0038180406044178565,
-     "s_vel": 0.005758901031321774
+     "s_vel": 0.005758901031321774,
+     "expected_previous": 76.05301734628164
     },
     "fluc11": {
-     "expected": 10.976200128434753,
+     "expected": 10.829625095044747,
      "tol": 1.0,
      "unit": "GPa",
      "se_run": 0.17580078211956432,
-     "s_vel": 0.10908755662712255
+     "s_vel": 0.10908755662712255,
+     "expected_previous": 10.976200128434753
     },
     "fluc12": {
-     "expected": 5.541569557907201,
+     "expected": 5.551838264396033,
      "tol": 0.88,
      "unit": "GPa",
      "se_run": 0.1548982897404374,
-     "s_vel": 0.12552125732860844
+     "s_vel": 0.12552125732860844,
+     "expected_previous": 5.541569557907201
     },
     "fluc44": {
-     "expected": 4.495711493926599,
+     "expected": 4.46008093221719,
      "tol": 0.44,
      "unit": "GPa",
      "se_run": 0.05794724857804539,
-     "s_vel": 0.07646751362361247
+     "s_vel": 0.07646751362361247,
+     "expected_previous": 4.495711493926599
     },
     "kin11": {
-     "expected": 0.6720275798897432,
+     "expected": 0.672064877037253,
      "tol": 3.2999999999999996e-05,
      "unit": "GPa",
      "se_run": 0.0,
-     "s_vel": 5.775176462345398e-06
+     "s_vel": 5.775176462345398e-06,
+     "expected_previous": 0.6720275798897432
     },
     "T_kin": {
-     "expected": 299.99009382230474,
+     "expected": 300.06426827366937,
      "tol": 0.8300000000000001,
      "unit": "K",
      "se_run": 0.1261541619893407,
-     "s_vel": 0.14585639622602006
+     "s_vel": 0.14585639622602006,
+     "expected_previous": 299.99009382230474
     },
     "T_conf_recip": {
-     "expected": 299.97501457809193,
+     "expected": 299.48428318968587,
      "tol": 3.1,
      "unit": "K",
      "se_run": 0.3957047764678824,
-     "s_vel": 0.5376927588991158
+     "s_vel": 0.5376927588991158,
+     "expected_previous": 299.97501457809193
     },
     "T_conf_sample": {
-     "expected": 300.5768102414237,
+     "expected": 300.074546012006,
      "tol": 3.1,
      "unit": "K",
      "se_run": 0.39731676822144457,
-     "s_vel": 0.53195113764009
+     "s_vel": 0.53195113764009,
+     "expected_previous": 300.5768102414237
     },
     "pressure": {
-     "expected": -0.00381330565163145,
+     "expected": -0.0013846374020271748,
      "tol": 0.009000000000000001,
      "unit": "GPa",
      "se_run": 0.0009978774956615072,
-     "s_vel": 0.0015888777846156988
+     "s_vel": 0.0015888777846156988,
+     "expected_previous": -0.00381330565163145
     },
     "econs_err_max": {
      "max": 3.2e-05,

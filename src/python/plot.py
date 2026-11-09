@@ -188,8 +188,11 @@ class PlotSeries:
         atom_names=None,
         fontsize=12,
         eam=False,
+        sample_stride=1,
     ):
+        # index of the first production sample in the stored series
         self.cycles_thermalization = cycles_thermalization
+        self.sample_stride = sample_stride
         self.ensamble = ensamble
         self.temperature_thermostat = temperature_thermostat
         self.pressure_barostat = pressure_barostat
@@ -203,8 +206,8 @@ class PlotSeries:
     def get_x_params(self, series, plot_steps):
         if plot_steps:
             # plotting steps instead of times
-            times = 1 + np.array(list(range(len(series.time))))
-            suptitle = f"MD steps={len(series.time)},  "
+            times = self.sample_stride * (1 + np.array(list(range(len(series.time)))))
+            suptitle = f"MD steps={times[-1]},  "
             xlabel = "MD steps"
         else:
             times = np.array(series.time) / Units.ps

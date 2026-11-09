@@ -354,6 +354,7 @@ class MolecularDynamics:
             "initial_velocities",
             "thermostat_coupling",
             "random_seed",
+            "sample_stride",
         }
 
         assert (
@@ -372,6 +373,9 @@ class MolecularDynamics:
         # g(r) sampling stride (in MD steps) *after* thermalization.
         # Default of 1 preserves the old "sample every post-thermalization step" behavior.
         self.gr_stride = 1
+        # Observables (stress, Born tensor, T_conf, energies, volume) are computed and stored
+        # every ``sample_stride`` MD steps. The default of 1 samples every step.
+        self.sample_stride = 1
         self.thermostat_coupling = MDDriver.THERMOSTAT_KINETIC
         # --------------------------
 
@@ -398,6 +402,25 @@ class MolecularDynamics:
                 value = thermostat_coupling_map[value]
             setattr(self, key, value)
 
+        if int(self.sample_stride) != self.sample_stride or self.sample_stride < 1:
+            raise ValueError(f"sample_stride must be a positive integer, got {self.sample_stride}")
+        self.sample_stride = int(self.sample_stride)
+        if self.sample_stride > 1:
+            if self.thermostat_coupling != MDDriver.THERMOSTAT_KINETIC:
+                raise ValueError(
+                    "sample_stride > 1 requires kinetic thermostat coupling, because the "
+                    "configurational temperature is then not computed every step"
+                )
+            for key in ("cycles_thermalization", "plot_freq"):
+                if getattr(self, key) % self.sample_stride != 0:
+                    raise ValueError(
+                        f"{key}={getattr(self, key)} must be a multiple of "
+                        f"sample_stride={self.sample_stride}"
+                    )
+        # Series index of the first production sample. Sample k is taken after MD step
+        # (k + 1) * sample_stride, and production starts after cycles_thermalization steps.
+        self.samples_thermalization = self.cycles_thermalization // self.sample_stride
+
         self.work_dir = path.abspath(self.work_dir)
         logger.info(f"creating output directory: '{self.work_dir}'")
         os.makedirs(self.work_dir, exist_ok=True)
@@ -416,7 +439,8 @@ class MolecularDynamics:
         from plot import PlotSeries
 
         self.plot_series = PlotSeries(
-            cycles_thermalization=self.cycles_thermalization,
+            cycles_thermalization=self.samples_thermalization,
+            sample_stride=self.sample_stride,
             ensamble="NVE"
             if self.ensamble == MDDriver.NVE
             else "NVT"
@@ -639,51 +663,52 @@ class MolecularDynamics:
 
     def perform_thermal_average(self):
         logger.info("performing thermodynamic averages")
-        assert self.thermalized and self.cycles_thermalization < len(self.series.time)
+        assert self.thermalized and self.samples_thermalization < len(self.series.time)
 
         self.series.thermal_results.time = self.driver.time
         self.series.thermal_results.cycles_thermalization = self.cycles_thermalization
+        self.series.thermal_results.sample_stride = self.sample_stride
         self.series.temperature_kin.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.temperature_conf_inverse.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.total_laplacian.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.total_force2.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.pressure.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.stress_tensor.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.born_stress_tensor.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
 
         self.series.epot_atom.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.ekin_atom.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.etot_atom.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.etot_cons.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.etot_cons_err.set_averages(0, cycles_thermalization_cum=0)
 
         self.series.V_V0.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.L_L0.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         logger.info(f"MEAN L/L0={self.series.L_L0.mean}")
 
@@ -692,7 +717,7 @@ class MolecularDynamics:
         particle_density = TimeSeries()
         particle_density.data = self.Nparticles / (np.array(self.series.V_V0.data) * V0)
         particle_density.set_averages(
-            self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+            self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
         )
         self.series.particle_density = particle_density
 
@@ -789,7 +814,7 @@ class MolecularDynamics:
                 / (Vmean * Units.k_boltz * self.temperature_thermostat**2)
             )
             volume_thermal_expansion.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
             self.series.volume_thermal_expansion = volume_thermal_expansion
             self.series.thermal_results.volume_thermal_expansion = volume_thermal_expansion.mean
@@ -812,7 +837,7 @@ class MolecularDynamics:
                     np.asarray(self.series.particle_density.data) * kTth
                 )[None, :]
             # production-window means of the fluctuating stress
-            fluc_stress_mean = fluc_stress_tensor[:, self.cycles_thermalization :].mean(axis=1)
+            fluc_stress_mean = fluc_stress_tensor[:, self.samples_thermalization :].mean(axis=1)
 
             self.series.stress_fluc = TimeSeriesMatrix(6)
             self.series.born_stress_fluc = TimeSeriesMatrix(6)
@@ -841,13 +866,13 @@ class MolecularDynamics:
             ) / 3.0
 
             self.series.born_elasticity_tensor_11.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
             self.series.born_elasticity_tensor_12.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
             self.series.born_elasticity_tensor_44.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
 
             self.series.thermal_results.elasticity_tensor = np.zeros((6, 6))
@@ -859,8 +884,8 @@ class MolecularDynamics:
                         i, j, :
                     ]
                     self.series.born_elasticity_tensor.data[i][j].set_averages(
-                        self.cycles_thermalization,
-                        cycles_thermalization_cum=self.cycles_thermalization,
+                        self.samples_thermalization,
+                        cycles_thermalization_cum=self.samples_thermalization,
                     )
 
                     # stress fluctuations term
@@ -868,8 +893,8 @@ class MolecularDynamics:
                     V_all_times = TimeSeries()
                     V_all_times.data = np.copy(self.series.V_V0.data) * V0
                     V_all_times.set_averages(
-                        self.cycles_thermalization,
-                        cycles_thermalization_cum=self.cycles_thermalization,
+                        self.samples_thermalization,
+                        cycles_thermalization_cum=self.samples_thermalization,
                     )
                     self.series.stress_fluc.data[i][j].data[:] = list(
                         V_all_times.mean
@@ -880,8 +905,8 @@ class MolecularDynamics:
                         )
                     )
                     self.series.stress_fluc.data[i][j].set_averages(
-                        self.cycles_thermalization,
-                        cycles_thermalization_cum=self.cycles_thermalization,
+                        self.samples_thermalization,
+                        cycles_thermalization_cum=self.samples_thermalization,
                     )
 
                     self.series.born_stress_fluc.data[i][j].data[:] = list(
@@ -894,8 +919,8 @@ class MolecularDynamics:
                         )
                     )
                     self.series.born_stress_fluc.data[i][j].set_averages(
-                        self.cycles_thermalization,
-                        cycles_thermalization_cum=self.cycles_thermalization,
+                        self.samples_thermalization,
+                        cycles_thermalization_cum=self.samples_thermalization,
                     )
 
                     C_kinetic = np.copy(self.series.particle_density.data) * kTth
@@ -906,8 +931,8 @@ class MolecularDynamics:
                         C_kinetic *= 0.0
                     self.series.elasticity_ideal_gas.data[i][j].data[:] = list(C_kinetic)
                     self.series.elasticity_ideal_gas.data[i][j].set_averages(
-                        self.cycles_thermalization,
-                        cycles_thermalization_cum=self.cycles_thermalization,
+                        self.samples_thermalization,
+                        cycles_thermalization_cum=self.samples_thermalization,
                     )
 
                     bulk_modulus_term = 0.0
@@ -922,8 +947,8 @@ class MolecularDynamics:
                     )
 
                     self.series.elasticity_tensor.data[i][j].set_averages(
-                        self.cycles_thermalization,
-                        cycles_thermalization_cum=self.cycles_thermalization,
+                        self.samples_thermalization,
+                        cycles_thermalization_cum=self.samples_thermalization,
                     )
                     self.series.thermal_results.elasticity_tensor[i, j] = (
                         self.series.born_elasticity_tensor.data[i][j].mean
@@ -994,13 +1019,13 @@ class MolecularDynamics:
             ) / 3.0
 
             self.series.elasticity_tensor_11.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
             self.series.elasticity_tensor_12.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
             self.series.elasticity_tensor_44.set_averages(
-                self.cycles_thermalization, cycles_thermalization_cum=self.cycles_thermalization
+                self.samples_thermalization, cycles_thermalization_cum=self.samples_thermalization
             )
 
             bulk_modulus_term = (
@@ -1190,6 +1215,28 @@ class MolecularDynamics:
         self.plot_series.partial_pair_correlation(series=self.series)
         self.plot_series.conservation(series=self.series)
 
+    def append_sample(self):
+        """Store the current observables for the averages calculation."""
+        self.series.time.append(self.driver.time)
+        self.series.temperature_kin.append(self.driver.temperature_kin)
+        self.series.temperature_conf_inverse.append(self.driver.temperature_conf_inverse)
+        self.series.total_laplacian.append(self.driver.total_laplacian)
+        self.series.total_force2.append(self.driver.total_force2)
+        self.series.pressure.append(self.driver.pressure)
+        self.series.stress_tensor.append(np.copy(self.driver.stress_tensor))
+        self.series.etot_atom.append(self.driver.etot_atom)
+        self.series.epot_atom.append(self.driver.epot_atom)
+        self.series.epot_eam_atom.append(self.driver.epot_eam_atom)
+        self.series.ekin_atom.append(self.driver.ekin_atom)
+        self.series.etot_cons.append(self.driver.etot_cons)
+        self.series.etot_cons_err.append(self.driver.etot_cons_err)
+        self.series.born_stress_tensor.append(np.copy(self.driver.born_stress_tensor))
+        self.series.born_elasticity_tensor.append(np.copy(self.driver.born_elasticity_tensor))
+
+        V_V0 = self.driver.box.volume() / self.driver.box_initial.volume()
+        self.series.V_V0.append(V_V0)
+        self.series.L_L0.append(V_V0 ** (1.0 / 3.0))
+
     def run(self):
         while self.driver.cycle <= self.cycles_end:
             if self.driver.cycle % self.dump_cycles == 0:
@@ -1198,28 +1245,13 @@ class MolecularDynamics:
             if self.driver.cycle % self.cycles_neigbors == 0 and self.neighbors:
                 self.driver.calculate_neighbors()
 
+            # The step about to run is cycle + 1; sample it if it is a multiple of the stride.
+            sample = (self.driver.cycle + 1) % self.sample_stride == 0
+            self.driver.sample_observables = sample
             self.driver.integrate()
 
-            # ---- store results for averages calculation
-            self.series.time.append(self.driver.time)
-            self.series.temperature_kin.append(self.driver.temperature_kin)
-            self.series.temperature_conf_inverse.append(self.driver.temperature_conf_inverse)
-            self.series.total_laplacian.append(self.driver.total_laplacian)
-            self.series.total_force2.append(self.driver.total_force2)
-            self.series.pressure.append(self.driver.pressure)
-            self.series.stress_tensor.append(np.copy(self.driver.stress_tensor))
-            self.series.etot_atom.append(self.driver.etot_atom)
-            self.series.epot_atom.append(self.driver.epot_atom)
-            self.series.epot_eam_atom.append(self.driver.epot_eam_atom)
-            self.series.ekin_atom.append(self.driver.ekin_atom)
-            self.series.etot_cons.append(self.driver.etot_cons)
-            self.series.etot_cons_err.append(self.driver.etot_cons_err)
-            self.series.born_stress_tensor.append(np.copy(self.driver.born_stress_tensor))
-            self.series.born_elasticity_tensor.append(np.copy(self.driver.born_elasticity_tensor))
-
-            V_V0 = self.driver.box.volume() / self.driver.box_initial.volume()
-            self.series.V_V0.append(V_V0)
-            self.series.L_L0.append(V_V0 ** (1.0 / 3.0))
+            if sample:
+                self.append_sample()
             self.thermalized = self.driver.cycle > self.cycles_thermalization
 
             if self.thermalized:
