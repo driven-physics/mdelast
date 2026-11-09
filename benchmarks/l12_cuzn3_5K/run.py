@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark L1: ordered L1_2 CuZn3 at 5 K (manuscript Table tab:elastic-avg).
+"""Benchmark L1: ordered L1_2 CuZn3 at 5 K (manuscript Table 1).
 
 500 atoms (5 x 5 x 5 cubic L1_2 cells; Cu on cube corners, Zn on face centres),
 Clement-Auger Cu-Zn EAM potential, 2 fs timestep, Nose-Hoover chains (M = 10,
@@ -8,7 +8,7 @@ tau_T = 50 fs, tau_P = 500 fs), neighbour list with r_skin = 1.2 rebuilt every
   1. NPT at zero pressure: 50,000 thermalization + 100,000 production steps;
   2. NVT at the mean NPT volume, started from the last NPT snapshot:
      50,000 + 100,000 steps, accumulating the elasticity tensor.
-This is exactly replica 0 of the nine-replica set behind Table tab:elastic-avg
+This is exactly replica 0 of the nine-replica set behind Table 1
 (velocity seeds 0 for NPT and 500 for NVT).
 
 Usage (from the repository root, after building):

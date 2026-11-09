@@ -10,7 +10,7 @@ It needs only the files already in the repository (`src/`, `potentials/ZnCu.eam.
 |---|---|---|---|---|
 | **S** | Smoke test: static finite-difference checks plus short NVE/NVT/NPT runs | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = ∂σ^B_a/∂η_b; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT | `benchmarks/smoke/run_smoke.py` | under 1 min |
 | **Z1** | 6 at.% Zn α-brass, 300 K, NPT → NVT (the workflow of Sec. 5.1, Figs. 1–5) | Full production protocol: zero-pressure volume, C11, C12, C44, their Born, stress-fluctuation and kinetic parts, T_K, both T_conf estimators, pressure, conserved-energy error and drift | `sample_case/run.py` (already in the repository) | about 19 min |
-| **L1** | Ordered L1₂ CuZn₃, 5 K, NPT → NVT (Table `tab:elastic-avg`) | Same quantities as Z1 near the athermal limit, plus agreement with the independent 0 K reference values of the potential (NIST repository) | `benchmarks/l12_cuzn3_5K/run.py` | about 17 min |
+| **L1** | Ordered L1₂ CuZn₃, 5 K, NPT → NVT (Table 1 of the manuscript) | Same quantities as Z1 near the athermal limit, plus agreement with the independent 0 K reference values of the potential (NIST repository) | `benchmarks/l12_cuzn3_5K/run.py` | about 17 min |
 
 Runtimes were measured with version 1.2 and its default options on one core of an Intel Xeon Gold 6534 (about 3.8 ms per MD step for 500 atoms; see "Runtime" below).
 Z1 and L1 each run 2 × 150,000 MD steps.
@@ -110,7 +110,7 @@ The fixed-configuration values of S are deterministic and use relative tolerance
 |---|---|---|
 | Sec. 5.1, Figs. 1–5 (workflow, T_K/T_conf, NPT volume, Born convergence, conserved energy) | Z1 | `npt/series.h5`, `nvt/series.h5`: same seeds as the figures (which were made with version 1.0) |
 | Sec. 5.3 / Fig. 11 (uncertainty) | Z1 | the per-run standard errors and replica scatter that set the tolerances (`expected/zn06_300K.json`: `se_run`, `s_vel`) |
-| Table `tab:elastic-avg`, CuZn₃ L1₂ | L1 | `nvt.C11/C12/C44`; the table quotes the mean of nine velocity replicas (97.634, 60.824, 42.841 GPa), L1 is replica 0 |
+| Table 1, CuZn₃ L1₂ | L1 | `nvt.C11/C12/C44`; the table quotes the mean of nine velocity replicas (97.634, 60.824, 42.841 GPa), L1 is replica 0 |
 | Sec. 5.5 (T_K vs T_conf) and Appendix (Laplacian) | S, Z1, L1 | S checks the Laplacian against finite differences; Z1 and L1 check both T_conf estimators |
 | Sec. 5.6 (runtime) | all | wall time per step printed by S for each short run (`dynamics.*.ms_per_step`) |
 
@@ -122,9 +122,9 @@ The quantity extraction is in `benchmarks/bench_lib.py`, if you want to tabulate
 * **NPT C11, C12 and K** are printed as `INFO` and are not checked.
   * The paper recommends the NVT stage for the elastic constants (Sec. 5.3), and the NPT stress-fluctuation estimates of C11 and C12 converge slowly (per-run standard error about 11 GPa at 300 K).
   * NPT C44, the Born terms and the volume are checked.
-  * This version of the code includes the corrected NPT estimator (the ideal-gas pressure N k_B T / V stays inside the fluctuating stress; `FIXES.md`, item 1). The expected NPT C11 and C12 were re-evaluated from the same reference trajectories with the corrected formula: Z1 146.765 and 96.278 GPa (0.689 GPa below the previous estimator), L1 46.051 and 9.246 GPa (0.014 GPa below). NPT C44, K and every NVT quantity are unchanged by the fix.
+  * This version of the code includes the corrected NPT estimator (the ideal-gas pressure N k_B T / V stays inside the fluctuating stress; `FIXES.md`, item 1). With the corrected formula the version 1.0 reference trajectories gave Z1 146.765 and 96.278 GPa (0.689 GPa below the previous estimator) and L1 46.051 and 9.246 GPa (0.014 GPa below). The INFO values now printed are those of the version 1.2 reference runs (`expected/EXPECTED.md`). NPT C44, K and every NVT quantity are unchanged by the fix.
 * **Shear components.** mdelast uses an orthorhombic cell, so benchmark S cannot apply shear strains. Shear components are checked through C44 and C^B_44 by Z1 and L1.
-* **NVE runs.** In the current code, `MolecularDynamics.run()` stops at the final averaging step for the NVE ensemble. Benchmark S therefore drives the compiled integrator directly for its NVE check. \[TBD: remove this note once fixed.\]
+* **NVE runs.** In the current code, `MolecularDynamics.run()` stops at the final averaging step for the NVE ensemble. Benchmark S therefore drives the compiled integrator directly for its NVE check.
 * **Disk space.** Z1 and L1 each write about 1.3 GB (full per-step `series.h5` and trajectory dumps).
 
 ## 7. Runtime

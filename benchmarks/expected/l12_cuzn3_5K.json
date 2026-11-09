@@ -6,7 +6,7 @@
  },
  "source": {
   "reference": "runs/runs_alloys/elastic_replicas/L1_2_CuZn3/replica_0 (velocity seeds 0 / 500)",
-  "velocity_replicas": "runs/runs_alloys/elastic_replicas/L1_2_CuZn3/replica_0..8 (manuscript Table tab:elastic-avg)",
+  "velocity_replicas": "runs/runs_alloys/elastic_replicas/L1_2_CuZn3/replica_0..8 (manuscript Table 1)",
   "se": "fig_code/autocorr.py (stream B3)",
   "expected_values": "version 1.2 reference run (default options: quintic table interpolation, sample_stride 1; same seeds as the version 1.0 reference)"
  },
@@ -291,7 +291,7 @@
    "C12": 60.838,
    "C44": 42.885
   },
-  "source": "NIST Interatomic Potentials Repository, Clement-Auger Cu-Zn potential (manuscript Table tab:elastic-avg)",
+  "source": "NIST Interatomic Potentials Repository, Clement-Auger Cu-Zn potential (manuscript Table 1)",
   "max_rel_deviation": 0.002,
   "why": "manuscript: 5 K values lie below the 0 K references by up to ~0.2% (classical thermal softening)"
  },

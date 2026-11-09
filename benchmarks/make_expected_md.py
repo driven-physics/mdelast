@@ -34,6 +34,11 @@ def fmt(x, nd=6):
     return f"{x:.3g}"
 
 
+def fmt_values(values):
+    """Format a {name: value} dict of elastic constants in GPa as plain text."""
+    return ", ".join(f"{k} = {v}" for k, v in values.items()) + " GPa"
+
+
 def md_table(spec, what):
     out = []
     for stage, st in spec["stages"].items():
@@ -108,11 +113,11 @@ def main():
         md_table(z, z.get("source", {}).get("expected_values", "the run of manuscript Sec. 5.1 (Figs. 1-5)")),
         "",
         "## Benchmark L1: L1_2 CuZn3, 5 K, NPT -> NVT (`l12_cuzn3_5K/run.py`)",
-        md_table(l12, l12.get("source", {}).get("expected_values", "replica 0 of the set behind Table tab:elastic-avg")),
+        md_table(l12, l12.get("source", {}).get("expected_values", "replica 0 of the set behind Table 1")),
         "",
         f"Additional check: |C(5 K) - C(0 K)| / C(0 K) <= {zk['max_rel_deviation']} against the 0 K "
-        f"reference values {zk['values_GPa']} ({zk['source']}). Table tab:elastic-avg lists the "
-        f"nine-replica means {l12['table_replica_mean_GPa']}.",
+        f"reference values {fmt_values(zk['values_GPa'])} ({zk['source']}). Table 1 lists the "
+        f"nine-replica means {fmt_values(l12['table_replica_mean_GPa'])}.",
         "",
     ]
     (EXP / "EXPECTED.md").write_text("\n".join(txt))

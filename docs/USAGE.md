@@ -28,11 +28,12 @@ For an alloy or custom structure, provide:
 `get_Ar_LJ()` creates a single-species Lennard-Jones argon material (no EAM,
 no lattice constant — supply `a_lattice` and `N_lattice_side` to
 `MolecularDynamics`).
-`get_EAM_file("Cu01.eam.alloy.txt")` creates the included pure-Cu material.
+`get_potential.get_EAM_file(file_name="Cu01.eam.alloy.txt")` creates the included
+pure-Cu material.
 `get_EAM_alloy_file("ZnCu.eam.alloy")` returns element metadata, pair
 potentials, and EAM objects for an explicit alloy `Material`.
 
-Both EAM loaders take `interpolation="quintic"` (default) or `"bspline"`.
+Both loaders of `get_potential` take `interpolation="quintic"` (default) or `"bspline"`.
 `"bspline"` selects the cubic B-spline tables of mdelast ≤ 1.1 and reproduces
 results of those versions exactly; see *Table interpolation* in
 `API_REFERENCE.md`.
@@ -42,24 +43,33 @@ results of those versions exactly; see *Table interpolation* in
 The following keyword arguments are required:
 
 - `material`: a `Material` instance
-- `ensamble`: `MDDriver.NVE`, `MDDriver.NVT`, or `MDDriver.NPT`
+- `ensamble`: `MDDriver.NVE`, `MDDriver.NVT`, or `MDDriver.NPT`.
+  In version 1.2 an NVE run integrates correctly but `run()` raises at the final
+  averaging step. Drive `MDDriver.integrate()` directly, as benchmark S does.
 - `temperature_initial`: initial velocity temperature in K
 - `temperature_thermostat`: thermostat target in K
 - `tau_thermostat`: thermostat time constant in seconds
 - `pressure_barostat`: NPT pressure target in CGS pressure units
 - `tau_barostat`: barostat time constant in seconds
 - `dt_global`: integration time step in seconds
-- `cycles_thermalization`: samples excluded from final averages
-- `plot_freq`: production/plot interval used by the run loop
+- `cycles_thermalization`: MD steps excluded from the averages
+- `plot_freq`: averages, `series.h5` and plots are written every `plot_freq`
+  steps after thermalization. Set it to the production length for one final output.
 - `cycles_end`: total number of integration cycles
 - `dump_cycles`: trajectory dump interval
+- `fatal_conservation`: the run stops when the relative error of the conserved
+  energy exceeds this value (the scripts use 1e3, which disables the stop)
 
 Common optional arguments:
 
 - `N_lattice_side`: FCC cells per direction for generated lattices
-- `nchains_thermostat`, `nchains_barostat`: Nose-Hoover chain lengths
-- `thermostat_coupling`: kinetic, configurational, or average coupling
-- `neighbors`, `r_skin`, `cycles_neigbors`: neighbor-list controls
+- `nchains_thermostat`, `nchains_barostat`: Nose-Hoover chain lengths (10 and 10)
+- `thermostat_coupling`: `"kinetic"` (default), the scheme of the paper. The values
+  `"configurational"` and `"average"` are experimental. They are not derived or
+  validated in the paper and do not sample a known ensemble.
+- `neighbors` (default False: all pairs), `r_skin` (list radius as a multiple of
+  the cut-off, at least 1, and 1.2 in the paper), `cycles_neigbors` (rebuild
+  interval in steps, default 15, and 20 in the paper)
 - `gr_stride`: post-thermalization radial-distribution sampling interval
 - `sample_stride`: compute and store the observables every N MD steps (default 1).
   On the other steps the Born elasticity tensor and the configurational-temperature
@@ -70,7 +80,7 @@ Common optional arguments:
 - `initial_velocities`: explicit velocity vectors
 - `random_seed`: deterministic velocity seed
 - `plot_graphs`, `show_graphs`, `slurm_plt`: plotting controls
-- `fatal_conservation`: energy-conservation guard
+- `work_dir`: output directory (default: the current directory)
 
 The misspellings `ensamble` and `cycles_neigbors` are stable historical API
 names and must be used exactly as shown.

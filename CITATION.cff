@@ -7,12 +7,12 @@ license: MIT
 repository-code: "https://github.com/driven-physics/mdelast"
 doi: 10.5281/zenodo.21380002
 authors:
-  - family-names: Ashkenazy
-    given-names: Yinon
+  - family-names: Shikler
+    given-names: Rann
     affiliation: "Racah Institute of Physics, The Hebrew University of Jerusalem"
   - family-names: Krief
     given-names: Menahem
     affiliation: "Racah Institute of Physics, The Hebrew University of Jerusalem"
-  - family-names: Shikler
-    given-names: Rann
+  - family-names: Ashkenazy
+    given-names: Yinon
     affiliation: "Racah Institute of Physics, The Hebrew University of Jerusalem"

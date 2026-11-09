@@ -10,8 +10,8 @@ nvt/series.h5). Every "expected" value in benchmarks/expected/<benchmark>.json i
 the value of the reference run, extracted exactly as verify.py extracts it. Tolerances, bounds,
 SE_run and s_vel are left unchanged, the previous value is kept as "expected_previous", and
 the label is stored under source.expected_values. Run lengths must match the reference schedule.
-verify.py reads the JSON directly; benchmarks/expected/EXPECTED.md is updated separately, from
-the table this script prints.
+verify.py reads the JSON directly; benchmarks/expected/EXPECTED.md is regenerated with
+make_expected_md.py.
 """
 
 from __future__ import annotations

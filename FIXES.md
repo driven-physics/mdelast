@@ -1,4 +1,4 @@
-# Fixes in this version
+# Changes by version
 
 ## Version 1.2
 
@@ -39,7 +39,7 @@ are computed every `sample_stride` steps, while forces and the virial are
 computed at every step. The trajectory does not depend on `sample_stride`.
 
 **Effect.** None for the default `sample_stride = 1`, which is bit-identical to
-version 1.1. With `sample_stride = 10` the standard errors of the elastic
+version 1.1 (with `interpolation="bspline"`). With `sample_stride = 10` the standard errors of the elastic
 constants are unchanged (benchmark state: 0.204, 0.155, 0.045 GPa against
 0.204, 0.154, 0.045 GPa for C11, C12, C44).
 
@@ -92,16 +92,16 @@ thermostat force and mass, the conserved energy, and the barostat
 **Effect.** Verified with 200 velocity-seed replica pairs of the sample case
 (500 atoms, 6 at.% Zn, 300 K): `T_conf - T_K` falls by 0.204 +- 0.013% of T
 (predicted 0.200%), and the NVT elastic constants change by +0.027% (C11),
-+0.015% (C12), and +0.035% (C44), below their statistical uncertainties. The
-reference outputs in `sample_case/expected_output` and `benchmarks/expected`
-were produced with version 1.0; version 1.1 passes every check within the
-tolerances.
++0.015% (C12), and +0.035% (C44), below their statistical uncertainties. At the
+time of version 1.1, the reference outputs in `sample_case/expected_output` and
+`benchmarks/expected` were those of version 1.0, and version 1.1 passed every
+check within the tolerances.
 
 ## Version 1.0
 
-Two bugs are fixed relative to the previous release. Neither changes any NVT result or any two-element (Cu–Zn) result.
+Two bugs are fixed relative to the code of the original submission. Neither changes any NVT result or any two-element (Cu–Zn) result.
 
-## 1. NPT elastic constants: ideal-gas pressure in the fluctuating stress
+### 1. NPT elastic constants: ideal-gas pressure in the fluctuating stress
 
 **File:** `src/python/molecular_dynamics.py` (`perform_thermal_average`, the elasticity block)
 
@@ -121,7 +121,7 @@ as in Lips & Maass, PRE 97, 053002 (2018), Eqs. 12 and 15–16. The ideal-gas an
 
 **Verified:** on a short 500-atom Zn06 300 K NPT run, the code's C11 and C12 match an independent evaluation of the corrected formula from the same `series.h5` to 1e-4 GPa. Relative to the old formula they shift by −0.63 GPa.
 
-## 2. `eam.alloy` reader: pair potentials for three or more elements
+### 2. `eam.alloy` reader: pair potentials for three or more elements
 
 **File:** `src/python/get_potential.py` (`get_EAM_alloy_file`)
 
@@ -129,7 +129,7 @@ as in Lips & Maass, PRE 97, 053002 (2018), Eqs. 12 and 15–16. The ideal-gas an
 
 **Fix.** The reader now walks `(i, j) = (0,0), (0,1), (1,1), (0,2), (1,2), (2,2), …`, which matches `pot_index = j(j+1)/2 + i` in `MDDriver`.
 
-**Verified against LAMMPS `pair_style eam/alloy`** on a distorted 500-atom Ni–Al–Co cell (Mishin 2013 potential):
+**Verified against LAMMPS `pair_style eam/alloy`** on a distorted 500-atom Ni–Al–Co cell (potential of Purja Pun, Yamakov and Mishin, 2015):
 
 | Quantity | Difference from LAMMPS |
 |---|---|

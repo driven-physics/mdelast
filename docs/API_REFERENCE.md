@@ -31,7 +31,8 @@ Inputs and units are detailed in `USAGE.md`.
 
 ### Material helpers
 
-- `get_EAM_file(file_name=..., a_factor=1.0, interpolation=None)`: single-element SETFL/FS loader
+- `get_EAM_file(file_name=..., a_factor=1.0)`: single-element SETFL/FS loader, default
+  tables only. Use `get_potential.get_EAM_file` to choose the interpolation.
 - `get_Cu_Morse(a_factor=1.0)`: analytic Cu Morse material
 - `get_Cu_Table_Morse()`: tabulated version of the Cu Morse material
 - `get_Ar_LJ(epsilon=None, sigma=None, rcut_fac=3.5)`: Ar Lennard-Jones material
@@ -143,9 +144,11 @@ the run loop:
 
 - `Thermostat`: Nose-Hoover chain state
 - `Barostat`: isotropic barostat state
-- `BarostatFlex`: flexible-cell barostat state
-- `MDDriver.Ensamble`: `NVE`, `NVT`, `NPT`, or `NPT_FLEX`
-- `MDDriver.ThermostatCoupling`: kinetic, configurational, or average
+- `BarostatFlex`: placeholder, no equations of motion
+- `MDDriver.Ensamble`: `NVE`, `NVT`, `NPT`. `NPT_FLEX` is reserved and not
+  implemented. Selecting it aborts the process.
+- `MDDriver.ThermostatCoupling`: `THERMOSTAT_KINETIC` (default).
+  `THERMOSTAT_CONFIGURATIONAL` and `THERMOSTAT_AVERAGE` are experimental (see `USAGE.md`).
 
 ### `MDDriver`
 
@@ -159,6 +162,11 @@ public operations are:
 - `calculate_pair_correlation(...)`
 - `calculate_pair_correlations(...)`
 - `calculate_partial_pair_correlation(...)`
+
+One property is read-write: `sample_observables` (default True). When False, the
+next `integrate()` skips the Born elasticity tensor and the Laplacian, which keep
+their last values. `total_laplacian` and `total_force2` hold the two sums of the
+configurational-temperature ratio from the last sampled step.
 
 Most users should construct `MolecularDynamics` instead of instantiating
 `MDDriver` directly; the latter has a long, order-sensitive constructor and

@@ -116,4 +116,4 @@ The fixed-cell values depend on the table interpolation of the potential; `verif
 | max abs(E_cons(t)/E_cons(0) - 1) |  | <= 1.8e-07 | one-sided | reference 4.13e-08 | max of set 5.99e-08 | - |
 | abs(linear drift of E_cons/E_cons(0)) over production | 1/ns | <= 9.2e-08 | one-sided | reference -3.06e-08 | max of set 3.06e-08 | - |
 
-Additional check: |C(5 K) - C(0 K)| / C(0 K) <= 0.002 against the 0 K reference values {'C11': 97.638, 'C12': 60.838, 'C44': 42.885} (NIST Interatomic Potentials Repository, Clement-Auger Cu-Zn potential (manuscript Table tab:elastic-avg)). Table tab:elastic-avg lists the nine-replica means {'C11': 97.634, 'C12': 60.824, 'C44': 42.841}.
+Additional check: |C(5 K) - C(0 K)| / C(0 K) <= 0.002 against the 0 K reference values C11 = 97.638, C12 = 60.838, C44 = 42.885 GPa (NIST Interatomic Potentials Repository, Clement-Auger Cu-Zn potential (manuscript Table 1)). Table 1 lists the nine-replica means C11 = 97.634, C12 = 60.824, C44 = 42.841 GPa.

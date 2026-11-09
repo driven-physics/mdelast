@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark S (smoke test, a few minutes on one core).
+"""Benchmark S (smoke test, under a minute on one core).
 
 Part A -- static finite-difference checks on one fixed, distorted 256-atom
 Cu-Zn cell (no dynamics, deterministic up to floating-point round-off):

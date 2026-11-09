@@ -64,8 +64,8 @@ Every distributed file and directory is listed below.
   - `src/CMakeLists.txt` — CMake build definition for the Python extension.
   - `src/barostat.cpp` — isotropic barostat implementation.
   - `src/barostat.hpp` — isotropic barostat declarations.
-  - `src/barostat_flex.cpp` — flexible-cell barostat implementation.
-  - `src/barostat_flex.hpp` — flexible-cell barostat declarations.
+  - `src/barostat_flex.cpp`, `src/barostat_flex.hpp` — placeholder data structure for a
+    future flexible-cell barostat, not used.
   - `src/eam.hpp` — EAM density and embedding functions with their derivatives.
   - `src/md_driver.cpp` — molecular-dynamics driver implementation.
   - `src/md_driver.hpp` — molecular-dynamics driver declarations.
@@ -95,12 +95,13 @@ the distributed package.
 
 ## Source provenance
 
-The program source in `src/` and `examples/`, the potential data,
+Version 1.0 of the program source in `src/` and `examples/`, the potential data,
 `requirements.txt`, and `LICENSE` are from the deposited `mdelast-main.zip`
 (MD5 `928812de6fe872e058e2fade2c41ded5`) at
 <https://doi.org/10.5281/zenodo.21380003>. The CPC-specific README,
 `sample_case/`, `benchmarks/`, third-party notices, and documentation
-corrections do not modify the deposited program source. Version 1.1 differs
+corrections do not modify the deposited program source. Later changes to the
+source are listed in `FIXES.md`. Version 1.1 differs
 from the deposited source in one line of `src/python/molecular_dynamics.py`
 (`FIXES.md`, version 1.1). Version 1.2 adds the quintic table interpolation of
 the potential (default; the previous B-spline tables remain available) and the
@@ -253,9 +254,10 @@ produced with version 1.0, are:
 The nine placement-seed replicas in the manuscript gave standard deviations of
 0.3643, 0.3648, and 0.1048 GPa for C11, C12, and C44; 0.1022 K for kinetic
 temperature; 0.5900 K for configurational temperature; and 0.00084 A for box
-length. The acceptance tolerances in the reference JSON are approximately
-three times those replica scatters: 1.1 GPa for C11/C12, 0.32 GPa for C44,
-1.8 K for either temperature, and 0.01 A for box length. Small
+length. The acceptance tolerances in the reference JSON are about three times the
+replica scatter for the elastic constants and the configurational temperature:
+1.1 GPa for C11/C12, 0.32 GPa for C44, and 1.8 K. The kinetic temperature has
+the same 1.8 K, and the box length a wider 0.01 A. Small
 platform-dependent changes are expected; a systematic excess beyond these
 tolerances warrants investigation.
 
