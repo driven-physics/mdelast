@@ -35,7 +35,7 @@ potentials, and EAM objects for an explicit alloy `Material`.
 
 Both loaders of `get_potential` take `interpolation="quintic"` (default) or `"bspline"`.
 `"bspline"` selects the cubic B-spline tables of mdelast ≤ 1.1 and reproduces
-results of those versions exactly; see *Table interpolation* in
+version 1.1 results with the same build and inputs. See *Table interpolation* in
 `API_REFERENCE.md`.
 
 ## `MolecularDynamics` parameters
@@ -46,6 +46,8 @@ The following keyword arguments are required:
 - `ensamble`: `MDDriver.NVE`, `MDDriver.NVT`, or `MDDriver.NPT`.
   In version 1.2 an NVE run integrates correctly but `run()` raises at the final
   averaging step. Drive `MDDriver.integrate()` directly, as benchmark S does.
+  The NPT elastic-constant estimator assumes cubic symmetry. For a non-cubic
+  crystal, use NVT at a separately established equilibrium cell shape.
 - `temperature_initial`: initial velocity temperature in K
 - `temperature_thermostat`: thermostat target in K
 - `tau_thermostat`: thermostat time constant in seconds
@@ -55,10 +57,11 @@ The following keyword arguments are required:
 - `cycles_thermalization`: MD steps excluded from the averages
 - `plot_freq`: averages, `series.h5` and plots are written every `plot_freq`
   steps after thermalization. Set it to the production length for one final output.
-- `cycles_end`: total number of integration cycles
+- `cycles_end`: nominal run length in MD steps. The current loop executes
+  through `cycles_end + 1`.
 - `dump_cycles`: trajectory dump interval
 - `fatal_conservation`: the run stops when the relative error of the conserved
-  energy exceeds this value (the scripts use 1e3, which disables the stop)
+  energy exceeds this value (the scripts use a loose threshold of 1e3)
 
 Common optional arguments:
 

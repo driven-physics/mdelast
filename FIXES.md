@@ -92,14 +92,14 @@ thermostat force and mass, the conserved energy, and the barostat
 **Effect.** Verified with 200 velocity-seed replica pairs of the sample case
 (500 atoms, 6 at.% Zn, 300 K): `T_conf - T_K` falls by 0.204 +- 0.013% of T
 (predicted 0.200%), and the NVT elastic constants change by +0.027% (C11),
-+0.015% (C12), and +0.035% (C44), below their statistical uncertainties. At the
++0.015% (C12), and +0.035% (C44), below the uncertainty of a single run. At the
 time of version 1.1, the reference outputs in `sample_case/expected_output` and
 `benchmarks/expected` were those of version 1.0, and version 1.1 passed every
 check within the tolerances.
 
 ## Version 1.0
 
-Two bugs are fixed relative to the code of the original submission. Neither changes any NVT result or any two-element (Cu–Zn) result.
+Two bugs are fixed relative to the code of the original submission. The NPT correction leaves all NVT results unchanged. The reader correction leaves all two-element (Cu–Zn) results unchanged.
 
 ### 1. NPT elastic constants: ideal-gas pressure in the fluctuating stress
 

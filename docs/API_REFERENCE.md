@@ -5,8 +5,8 @@
 ### `molecular_dynamics.Material`
 
 Container for pair potentials, EAM density/embedding functions, atomic
-weights, species names, and lattice information. Scalars are normalized to
-one-element lists. For generated FCC structures set `a_lattice`; for an
+weights, species names, and lattice information. Pair potentials, atomic
+weights, and non-None EAM objects are normalized to lists. For generated FCC structures set `a_lattice`; for an
 explicit structure set `lattice`, `atom_type`, and `box_length`.
 
 ### `molecular_dynamics.MolecularDynamics`
@@ -17,6 +17,9 @@ velocities, and creates the compiled driver. `run()` advances the simulation,
 samples observables, performs final averages, writes `series.h5`, and
 optionally plots. `save_pickle()` remains available for historical workflows
 but is not called by the included run scripts.
+
+The NPT elastic-constant estimator assumes cubic symmetry. For a non-cubic
+crystal, use NVT at a separately established equilibrium cell shape.
 
 Supporting methods:
 
@@ -34,7 +37,8 @@ Inputs and units are detailed in `USAGE.md`.
 - `get_EAM_file(*, file_name, a_factor=1.0)`: single-element SETFL/FS loader, default
   tables only. Use `get_potential.get_EAM_file` to choose the interpolation.
 - `get_Cu_Morse(a_factor=1.0)`: analytic Cu Morse material
-- `get_Cu_Table_Morse()`: tabulated version of the Cu Morse material
+- `get_Cu_Table_Morse()`: unavailable in version 1.2. The helper raises
+  `AttributeError` before it constructs the table.
 - `get_Ar_LJ(epsilon=None, sigma=None, rcut_fac=3.5)`: Ar Lennard-Jones material
 - `get_deriv(x, y)`: finite differences at interval midpoints
 - `get_derivatives(x, y)`: quintic-spline first and second derivatives
@@ -61,7 +65,7 @@ schemes, chosen by the `interpolation` argument of `get_EAM_alloy_file` and
 | value | scheme |
 |---|---|
 | `"quintic"` (default) | one quintic Hermite polynomial per grid interval, built from f, f′, f″ at its two nodes; f′ and f″ are the exact derivatives of f and are continuous across nodes |
-| `"bspline"` | three independent cubic B-splines through the node values of f, f′ and f″ — the scheme of mdelast ≤ 1.1, kept to reproduce earlier results bit for bit |
+| `"bspline"` | three independent cubic B-splines through the node values of f, f′ and f″ — the scheme of mdelast ≤ 1.1, kept to reproduce version 1.1 with the same build and inputs |
 
 `interpolation=None` uses the module default `get_potential.DEFAULT_INTERPOLATION`
 (`"quintic"`); assigning it changes the default for every later load in the

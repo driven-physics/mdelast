@@ -201,7 +201,7 @@ EAM potential, a 2 fs timestep, a 10-link Nose-Hoover thermostat chain with
 50 fs relaxation time, neighbor-list rebuilding every 20 steps, and:
 
 1. 50,000-step zero-pressure NPT equilibration plus 100,000-step NPT production;
-2. transfer of the NPT mean box length and final configuration to NVT;
+2. transfer of the NPT mean volume and final configuration to NVT;
 3. 50,000-step NVT equilibration plus 100,000-step NVT production while
    accumulating the elastic constants.
 

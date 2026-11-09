@@ -8,7 +8,7 @@ It needs only the files already in the repository (`src/`, `potentials/ZnCu.eam.
 
 | ID | Benchmark | What it verifies | Input | Runtime, 1 core |
 |---|---|---|---|---|
-| **S** | Smoke test: static finite-difference checks plus short NVE/NVT/NPT runs | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = ∂σ^B_a/∂η_b; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT | `benchmarks/smoke/run_smoke.py` | under 1 min |
+| **S** | Smoke test: static finite-difference checks plus short NVE/NVT/NPT runs | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = (1/V0) ∂²U/(∂η_a∂η_b) at zero strain; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT | `benchmarks/smoke/run_smoke.py` | under 1 min |
 | **Z1** | 6 at.% Zn α-brass, 300 K, NPT → NVT (the workflow of Sec. 5.1, Figs. 1–5) | Full production protocol: zero-pressure volume, C11, C12, C44, their Born, stress-fluctuation and kinetic parts, T_K, both T_conf estimators, pressure, conserved-energy error and drift | `sample_case/run.py` (already in the repository) | about 19 min |
 | **L1** | Ordered L1₂ CuZn₃, 5 K, NPT → NVT (Table 1 of the manuscript) | Same quantities as Z1 near the athermal limit, plus agreement with the independent 0 K reference values of the potential (NIST repository) | `benchmarks/l12_cuzn3_5K/run.py` | about 17 min |
 
@@ -53,7 +53,7 @@ python3 benchmarks/verify.py all benchmark_output
 
 Each run is serial; Z1 and L1 are independent and can run at the same time on two cores.
 
-All three run scripts take `--interpolation quintic` (default) or `--interpolation bspline`, the table interpolation of the potential (`docs/API_REFERENCE.md`, "Table interpolation"); `bspline` reproduces versions up to 1.1.
+All three run scripts take `--interpolation quintic` (default) or `--interpolation bspline`, the table interpolation of the potential (`docs/API_REFERENCE.md`, "Table interpolation"); `bspline` reproduces version 1.1 with the same build and inputs.
 The choice is stored in `result.json`.
 The fixed-cell values of S depend on it, and `verify.py` uses the matching expected values (an output without the field is taken as `bspline`).
 Z1 and L1 are statistical checks and apply to both choices.
@@ -114,7 +114,7 @@ The fixed-configuration values of S are deterministic and use relative tolerance
 | Sec. 5.5 (T_K vs T_conf) and Appendix (Laplacian) | S, Z1, L1 | S checks the Laplacian against finite differences; Z1 and L1 check both T_conf estimators |
 | Sec. 5.6 (runtime) | all | wall time per step printed by S for each short run (`dynamics.*.ms_per_step`) |
 
-`verify.py` reads only `series.h5`, so the same checks apply to any NPT → NVT run with the paper's 150,000-step schedule.
+For Z1 and L1, `verify.py` reads `npt/series.h5` and `nvt/series.h5`. Their tolerances apply to the reference state points, seeds, and 150,000-step schedule in each stage.
 The quantity extraction is in `benchmarks/bench_lib.py`, if you want to tabulate other state points.
 
 ## 6. Ensemble notes and known limitations
