@@ -40,16 +40,16 @@ for pybind11 and Eigen3.
 
 ## macOS with Apple clang
 
-The Release flags contain three GCC-only options (`-ffloat-store`,
-`-Wno-maybe-uninitialized`, and `-rdynamic` at compile time), and `-Werror`
-turns clang's warnings about them into errors. Boost is added as a regular
+The Release flags contain two GCC-only options (`-Wno-maybe-uninitialized`
+and `-rdynamic` at compile time), and `-Werror` turns clang's warnings about
+them into errors. Boost is added as a regular
 include directory, so `-Wdouble-promotion` warnings inside the Boost 1.84
 headers also stop the build. Without changing `src/`, configure with:
 
 ```bash
 cmake -S src -B build/Release -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-  -DCMAKE_CXX_FLAGS="-isystem <prefix>/include -Wno-ignored-optimization-argument -Wno-unused-command-line-argument -Wno-unknown-warning-option" \
+  -DCMAKE_CXX_FLAGS="-isystem <prefix>/include -Wno-unused-command-line-argument -Wno-unknown-warning-option" \
   -Dpybind11_DIR="$(python3 -m pybind11 --cmakedir)"
 ```
 
@@ -72,9 +72,9 @@ The resulting extension is named similar to:
 build/Release/md_driver_module.cpython-312-x86_64-linux-gnu.so
 ```
 
-The exact suffix is selected by Python. The Release configuration retains the
-May26 numerical flags, including `-O2` and `-ffloat-store`, as well as strict
-warning and aliasing checks.
+The exact suffix is selected by Python. The Release configuration uses `-O2`
+with strict warning and aliasing checks. Version 1.2 removed `-ffloat-store`
+from these flags (`FIXES.md`, entry 6).
 
 ## Debug build
 

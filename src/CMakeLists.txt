@@ -21,7 +21,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILATION_FLAGS}")
 # Eigen emits a maybe-uninitialized warning under optimization.
 set(
     CMAKE_CXX_FLAGS_RELEASE
-    "${COMPILATION_FLAGS} -DNDEBUG -O2 -Wno-maybe-uninitialized -ffloat-store"
+    "${COMPILATION_FLAGS} -DNDEBUG -O2 -Wno-maybe-uninitialized"
 )
 
 include_directories(${Boost_INCLUDE_DIRS})

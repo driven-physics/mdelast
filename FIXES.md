@@ -25,7 +25,7 @@ falls from 0.013 to 1.0e-4 GPa and the Laplacian residual from 3.7e-6 to
 2.9e-8. The fixed-cell values of benchmark S change by up to 3.6e-7
 (relative); `benchmarks/expected/smoke.json` lists both sets. MD results
 change only through the different chaotic trajectory. A step costs about half
-as long (benchmark Z1: 2574 s against 4524 s with the B-spline tables, same
+as long (benchmark Z1: 1141 s against 2256 s with the B-spline tables, same
 build and node).
 
 ### 5. Sampling interval of the observables
@@ -42,6 +42,23 @@ computed at every step. The trajectory does not depend on `sample_stride`.
 version 1.1. With `sample_stride = 10` the standard errors of the elastic
 constants are unchanged (benchmark state: 0.204, 0.155, 0.045 GPa against
 0.204, 0.154, 0.045 GPa for C11, C12, C44).
+
+### 6. Release compiler flags
+
+**Files:** `src/CMakeLists.txt`
+
+**Change.** `-ffloat-store` is removed from the Release flags, which keep
+`-O2` and the warning and checking options. The option keeps floating-point
+variables out of registers. It matters only on the 32-bit x87 unit, whose
+registers carry extended precision; on x86-64 and arm64, double arithmetic
+uses 64-bit registers, so the option changes no result and only slows the code.
+
+**Effect.** Results are bit-identical with and without the option (GCC 14.2,
+Intel Xeon Gold 6534): every value of benchmark S, the decimated NPT and NVT
+series and the results of Z1, and the results of L1. Benchmark Z1 takes
+1141 s instead of 2569 s, and L1 1032 s instead of 2292 s. Results computed
+with earlier builds, including the reference values in `benchmarks/expected/`,
+remain valid.
 
 ### Reference values
 

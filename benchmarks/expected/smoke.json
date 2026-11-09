@@ -1,7 +1,7 @@
 {
  "benchmark": "smoke",
  "source": "fixed-cell values: one value per table interpolation of the potential; quintic from version 1.2 (default), bspline from versions <= 1.1 (identical to version 1.2 with interpolation='bspline'). Finite-difference and dynamics bounds apply to both.",
- "runtime_s_one_core": 127,
+ "runtime_s_one_core": 35,
  "checks": {
   "static.net_force_rel": {
    "max": 1e-12,

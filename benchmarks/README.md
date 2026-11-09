@@ -8,11 +8,11 @@ It needs only the files already in the repository (`src/`, `potentials/ZnCu.eam.
 
 | ID | Benchmark | What it verifies | Input | Runtime, 1 core |
 |---|---|---|---|---|
-| **S** | Smoke test: static finite-difference checks plus short NVE/NVT/NPT runs | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = ∂σ^B_a/∂η_b; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT | `benchmarks/smoke/run_smoke.py` | about 1 min |
-| **Z1** | 6 at.% Zn α-brass, 300 K, NPT → NVT (the workflow of Sec. 5.1, Figs. 1–5) | Full production protocol: zero-pressure volume, C11, C12, C44, their Born, stress-fluctuation and kinetic parts, T_K, both T_conf estimators, pressure, conserved-energy error and drift | `sample_case/run.py` (already in the repository) | about 45 min |
-| **L1** | Ordered L1₂ CuZn₃, 5 K, NPT → NVT (Table `tab:elastic-avg`) | Same quantities as Z1 near the athermal limit, plus agreement with the independent 0 K reference values of the potential (NIST repository) | `benchmarks/l12_cuzn3_5K/run.py` | about 40 min |
+| **S** | Smoke test: static finite-difference checks plus short NVE/NVT/NPT runs | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = ∂σ^B_a/∂η_b; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT | `benchmarks/smoke/run_smoke.py` | under 1 min |
+| **Z1** | 6 at.% Zn α-brass, 300 K, NPT → NVT (the workflow of Sec. 5.1, Figs. 1–5) | Full production protocol: zero-pressure volume, C11, C12, C44, their Born, stress-fluctuation and kinetic parts, T_K, both T_conf estimators, pressure, conserved-energy error and drift | `sample_case/run.py` (already in the repository) | about 19 min |
+| **L1** | Ordered L1₂ CuZn₃, 5 K, NPT → NVT (Table `tab:elastic-avg`) | Same quantities as Z1 near the athermal limit, plus agreement with the independent 0 K reference values of the potential (NIST repository) | `benchmarks/l12_cuzn3_5K/run.py` | about 17 min |
 
-Runtimes were measured with version 1.2 and its default options on one core of an Intel Xeon Gold 6534 (about 8.6 ms per MD step for 500 atoms; see "Runtime" below).
+Runtimes were measured with version 1.2 and its default options on one core of an Intel Xeon Gold 6534 (about 3.8 ms per MD step for 500 atoms; see "Runtime" below).
 Z1 and L1 each run 2 × 150,000 MD steps.
 
 `benchmarks/verify.py` compares any of these outputs with the expected values in `benchmarks/expected/*.json`, prints `PASS`/`FAIL` for every quantity, and exits with status 0 only if nothing fails.
@@ -34,15 +34,15 @@ All scripts take `--build-dir` (default `build/Release`) and write only into the
 ## 2. Run and verify
 
 ```bash
-# S: smoke test (~1 min)
+# S: smoke test (<1 min)
 python3 benchmarks/smoke/run_smoke.py --build-dir build/Release --output-dir benchmark_output/smoke
 python3 benchmarks/verify.py smoke benchmark_output/smoke
 
-# Z1: 6 at.% Zn, 300 K (~45 min); this is the repository's sample case
+# Z1: 6 at.% Zn, 300 K (~19 min); this is the repository's sample case
 python3 sample_case/run.py --build-dir build/Release --output-dir benchmark_output/zn06_300K
 python3 benchmarks/verify.py zn06_300K benchmark_output/zn06_300K
 
-# L1: L1_2 CuZn3, 5 K (~40 min)
+# L1: L1_2 CuZn3, 5 K (~17 min)
 python3 benchmarks/l12_cuzn3_5K/run.py --build-dir build/Release --output-dir benchmark_output/l12_cuzn3_5K
 python3 benchmarks/verify.py l12_cuzn3_5K benchmark_output/l12_cuzn3_5K
 
@@ -133,13 +133,14 @@ On one core of an Intel Xeon Gold 6534 (version 1.2, GCC 14.2, Release build), f
 
 | Benchmark | MD steps | Wall time, quintic (default) | Wall time, bspline |
 |---|---|---|---|
-| S | 7,000 MD steps + ~1,600 static evaluations | 73 s | 130 s |
-| Z1 | 300,000 | 2,579 s (8.6 ms/step) | 4,588 s (15.3 ms/step) |
-| L1 | 300,000 | 2,299 s (7.7 ms/step) | 4,034 s (13.4 ms/step) |
+| S | 7,000 MD steps + ~1,600 static evaluations | 35 s | 71 s |
+| Z1 | 300,000 | 1,141 s (3.8 ms/step) | 2,256 s (7.5 ms/step) |
+| L1 | 300,000 | 1,032 s (3.4 ms/step) | 2,001 s (6.7 ms/step) |
 
-With `sample_stride = 10` (observables every tenth step) the quintic Z1 and L1 runs took 1,753 s and 1,570 s.
-These times are for the current build settings (`-O2 -ffloat-store -fstack-protector-all`, as in `src/CMakeLists.txt`).
-Compiling the same source with `-O3` and without `-ffloat-store`/`-fstack-protector-all` gave 3.3 ms/step instead of 8.1 ms/step on the Z1 state point (quintic tables, NVT), with bitwise-identical fixed-cell results. \[TBD: this build change is pending; update this section if it is adopted.\]
+With `sample_stride = 10` (observables every tenth step) the quintic Z1 and L1 runs took 729 s and 676 s.
+These times are for the default Release build of `src/CMakeLists.txt` (`-O2`), with other single-core jobs running on the same node.
+Versions up to 1.1 also compiled with `-ffloat-store`, which made a step 2.2 times slower without changing any result (`FIXES.md`, entry 6).
+Compiling with `-O3` instead of `-O2` shortens Z1 by about 6% (1,073 s) and gives bit-identical results; the reference times and values are those of the default build.
 
 ## 8. Files
 

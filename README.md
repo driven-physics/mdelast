@@ -104,7 +104,8 @@ corrections do not modify the deposited program source. Version 1.1 differs
 from the deposited source in one line of `src/python/molecular_dynamics.py`
 (`FIXES.md`, version 1.1). Version 1.2 adds the quintic table interpolation of
 the potential (default; the previous B-spline tables remain available) and the
-`sample_stride` option (`FIXES.md`, version 1.2).
+`sample_stride` option, and removes `-ffloat-store` from the Release flags in
+`src/CMakeLists.txt` (`FIXES.md`, version 1.2).
 
 ## Requirements
 
@@ -186,8 +187,8 @@ MDELAST_BUILD_DIR=/path/to/build python3 -m unittest discover -s tests -v
 ## Benchmarks
 
 `benchmarks/` holds three benchmarks for verifying an installation: S (static
-checks and short runs, about 1 min), Z1 (the sample case below, about 45 min),
-and L1 (L1₂ CuZn₃ at 5 K, about 40 min), each on one core.
+checks and short runs, under 1 min), Z1 (the sample case below, about 19 min),
+and L1 (L1₂ CuZn₃ at 5 K, about 17 min), each on one core.
 `benchmarks/verify.py` checks a run against `benchmarks/expected/` and prints
 PASS or FAIL for every quantity. `benchmarks/README.md` gives the commands.
 
@@ -292,11 +293,10 @@ archived software, <https://doi.org/10.5281/zenodo.21380002> (all versions).
 ## Runtime estimate
 
 On one core of an Intel Xeon Gold 6534, version 1.2 with its default options
-needs about 8.6 ms per step for the 500-atom 6 at.% Zn case, so the complete
-NPT-plus-NVT workflow (300,000 steps) takes about 43 minutes. With
+needs about 3.8 ms per step for the 500-atom 6 at.% Zn case, so the complete
+NPT-plus-NVT workflow (300,000 steps) takes about 19 minutes. With
 `--interpolation bspline` (the tables of versions up to 1.1) it takes about
-1 hour 16 minutes (15.3 ms per step). Actual time depends on hardware and
-compiler.
+38 minutes (7.5 ms per step). Actual time depends on hardware and compiler.
 
 ## Potential provenance
 
