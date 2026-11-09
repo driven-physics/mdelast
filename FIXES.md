@@ -1,6 +1,6 @@
 # Fixes in this version
 
-## Version 1.2 (not yet released)
+## Version 1.2
 
 ### 4. Table interpolation of the potential
 

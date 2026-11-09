@@ -4,7 +4,7 @@
 finite-temperature elastic constants of multi-component embedded-atom-method
 (EAM) alloys from equilibrium stress fluctuations.
 
-This CPC program package, version 1.2 (not yet released), contains the source deposited as
+This CPC program package, version 1.2, contains the source deposited as
 [Zenodo record 21380003](https://doi.org/10.5281/zenodo.21380003), an MIT
 license, user documentation, a complete input/output test based on the
 manuscript's representative 6 at.% Zn alpha-brass calculation, and
