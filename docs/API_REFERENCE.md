@@ -4,33 +4,32 @@
 
 ### `molecular_dynamics.Material`
 
-Container for pair potentials, EAM density/embedding functions, atomic
-weights, species names, and lattice information. Pair potentials, atomic
-weights, and non-None EAM objects are normalized to lists. For generated FCC structures set `a_lattice`; for an
-explicit structure set `lattice`, `atom_type`, and `box_length`.
+Holds pair potentials, EAM density and embedding functions, atomic weights,
+species names, and the lattice. Pair potentials, atomic weights, and non-None
+EAM objects are stored as lists. For a generated FCC structure set `a_lattice`.
+For an explicit structure set `lattice`, `atom_type`, and `box_length`.
 
 ### `molecular_dynamics.MolecularDynamics`
 
-The high-level simulation controller. Construction validates inputs, creates
-the work and dump directories, builds or accepts a lattice, initializes
-velocities, and creates the compiled driver. `run()` advances the simulation,
-samples observables, performs final averages, writes `series.h5`, and
-optionally plots. `save_pickle()` remains available for historical workflows
-but is not called by the included run scripts.
+Runs a simulation. The constructor checks the inputs, creates the work and
+dump directories, builds or takes a lattice, sets the velocities, and creates
+the compiled driver. `run()` integrates, samples the observables, averages,
+writes `series.h5`, and plots if asked. `save_pickle()` is kept for old
+workflows. The run scripts do not call it.
 
 The NPT elastic-constant estimator assumes cubic symmetry. For a non-cubic
 crystal, use NVT at a separately established equilibrium cell shape.
 
-Supporting methods:
+Other methods:
 
-- `build_fcc_lattice()`: construct the requested periodic FCC supercell
-- `set_initial_velocities()`: initialize zero-momentum thermal velocities
+- `build_fcc_lattice()`: build the periodic FCC supercell
+- `set_initial_velocities()`: thermal velocities with zero total momentum
 - `dump()`: write one XYZ trajectory frame
-- `perform_thermal_average()`: calculate ensemble-dependent final properties
-- `save_h5()` and `save_pickle()`: serialize results
-- `plot()`: invoke `PlotSeries`
+- `perform_thermal_average()`: final properties of the ensemble
+- `save_h5()` and `save_pickle()`: write results
+- `plot()`: call `PlotSeries`
 
-Inputs and units are detailed in `USAGE.md`.
+`USAGE.md` lists the inputs and units.
 
 ### Material helpers
 
@@ -52,23 +51,22 @@ multi-element LAMMPS SETFL alloy file and returns:
 2. pair potentials in triangular pair ordering;
 3. one `EAM` object per species.
 
-Potential files are resolved from the top-level `potentials/` directory. The
-single-element `get_EAM_file` and Lennard-Jones helper are retained for
+Potential files are read from the top-level `potentials/` directory. The
+single-element `get_EAM_file` and the Lennard-Jones helper are kept for
 compatibility.
 
 ### Table interpolation
 
-The tabulated functions φ(r), ρ(r) and F(ρ) are evaluated with one of two
-schemes, chosen by the `interpolation` argument of `get_EAM_alloy_file` and
-`get_EAM_file`:
+The `interpolation` argument of `get_EAM_alloy_file` and `get_EAM_file` selects
+how the tabulated functions φ(r), ρ(r) and F(ρ) are evaluated:
 
 | value | scheme |
 |---|---|
-| `"quintic"` (default) | one quintic Hermite polynomial per grid interval, built from f, f′, f″ at its two nodes; f′ and f″ are the exact derivatives of f and are continuous across nodes |
-| `"bspline"` | three independent cubic B-splines through the node values of f, f′ and f″ — the scheme of mdelast ≤ 1.1, kept to reproduce version 1.1 with the same build and inputs |
+| `"quintic"` (default) | one quintic Hermite polynomial per grid interval, built from f, f′, f″ at its two nodes. f′ and f″ are the exact derivatives of f and are continuous across nodes |
+| `"bspline"` | three independent cubic B-splines through the node values of f, f′ and f″. This is the scheme of mdelast ≤ 1.1, kept to reproduce version 1.1 with the same build and inputs |
 
 `interpolation=None` uses the module default `get_potential.DEFAULT_INTERPOLATION`
-(`"quintic"`); assigning it changes the default for every later load in the
+(`"quintic"`). Assigning to it changes the default for every later load in the
 process. Any other value raises `ValueError`.
 
 ```python
@@ -80,20 +78,20 @@ The `"bspline"` scheme needs at least 5 grid points per table.
 
 ## Time-series API
 
-- `ThermalResults`: dynamic namespace for final aggregate properties
-- `TimeSeries`: scalar samples, population mean/std, cumulative statistics,
-  Gaussian curve data, and HDF5 serialization
+- `ThermalResults`: namespace for the final properties
+- `TimeSeries`: scalar samples, mean and standard deviation, cumulative
+  statistics, Gaussian curve data, and HDF5 output
 - `TimeSeriesVector(N)`: `N` component series
 - `TimeSeriesMatrix(N)`: `N x N` component series
 - `Series`: all sampled temperatures, energies, pressure/stress, box changes,
   Born tensors, and final thermal results
 
-`write_h5(file_h5, group_name)` stores each available field below the supplied
-group. Vector and matrix components use one-based suffixes in HDF5 names.
+`write_h5(file_h5, group_name)` stores each field below the given group.
+Vector and matrix components have one-based suffixes in the HDF5 names.
 
 ## Plotting API
 
-`plot.PlotSeries` consumes a `Series` and writes diagnostic plots. Public plot
+`plot.PlotSeries` takes a `Series` and writes diagnostic plots. The plot
 groups are:
 
 - `temperature`
@@ -104,19 +102,18 @@ groups are:
 - `energies_cv`
 - `partial_pair_correlation`
 
-`plot_splitted_x` and `get_splitted_axes` support broken-axis figures.
+`plot_splitted_x` and `get_splitted_axes` make broken-axis figures.
 
 ## VACF and VDOS API
 
-The documented functions in `vacf.py` provide post-processing independent of
-the run loop:
+`vacf.py` post-processes trajectory dumps, independent of the run loop:
 
 - `read_dump_xyz`: read positions, velocities, species, times, and box data
 - `compute_vacf`: mass-weighted velocity autocorrelation
-- `compute_vdos`: Fourier-transform VACF to a vibrational density of states
+- `compute_vdos`: vibrational density of states, the Fourier transform of the VACF
 - `compute_vdos_moments`: spectral moments
-- `plot_vacf` and `plot_vdos`: publication figures
-- `write_spectral_moments` and `save_results_npz`: persist results
+- `plot_vacf` and `plot_vdos`: figures
+- `write_spectral_moments` and `save_results_npz`: write results
 
 ## Compiled `md_driver_module` API
 
@@ -140,8 +137,8 @@ the run loop:
   tabulated density ρ(r) and embedding function F(ρ) with their derivatives
 
   For both, the optional last positional argument is the string `"quintic"`
-  (default) or `"bspline"` (see *Table interpolation*); the choice is readable
-  as the `.interpolation` attribute.
+  (default) or `"bspline"` (see *Table interpolation*). The `.interpolation`
+  attribute holds the choice.
 - `PotentialVector` and `EAMVector`: pybind11 vector containers
 
 ### Extended-system controls
@@ -156,10 +153,10 @@ the run loop:
 
 ### `MDDriver`
 
-The low-level driver exposes state arrays, energies, temperature estimators,
-pressure/stress, Born stress and elasticity tensors, pair correlations,
-current time/cycle, atom types, and box state as read-only properties. Its
-public operations are:
+The driver has read-only properties for the state arrays, energies,
+temperature estimators, pressure and stress, Born stress and elasticity
+tensors, pair correlations, current time and cycle, atom types, and box. Its
+methods are:
 
 - `integrate()`
 - `calculate_neighbors()`
@@ -172,6 +169,5 @@ next `integrate()` skips the Born elasticity tensor and the Laplacian, which kee
 their last values. `total_laplacian` and `total_force2` hold the two sums of the
 configurational-temperature ratio from the last sampled step.
 
-Most users should construct `MolecularDynamics` instead of instantiating
-`MDDriver` directly; the latter has a long, order-sensitive constructor and
-expects all values already converted to internal units.
+Use `MolecularDynamics` unless you need the driver itself. The `MDDriver`
+constructor takes many positional arguments, all in internal units.

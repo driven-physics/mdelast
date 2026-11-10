@@ -8,14 +8,13 @@
 `src/md_driver_module.cpp`, `src/python/get_potential.py`
 
 **Change.** Up to version 1.1 every tabulated function (phi(r), rho(r), F(rho))
-was evaluated with three independent cubic B-splines through the node values
-of f, f' and f''; f' and f'' were therefore not the derivatives of the f
-interpolant. The default is now one quintic Hermite polynomial per grid
-interval, built from f, f' and f'' at its two nodes. f' and f'' are the exact
-derivatives of f, f, f' and f'' are continuous across nodes, and one lookup
-returns all three. The previous scheme remains available as
-`interpolation="bspline"` (`docs/API_REFERENCE.md`, "Table interpolation") and
-reproduces version 1.1 bit for bit.
+used three independent cubic B-splines through the node values of f, f' and
+f'', so f' and f'' were not the derivatives of the interpolated f. The default
+is now one quintic Hermite polynomial per grid interval, built from f, f' and
+f'' at its two nodes. Its f' and f'' are the exact derivatives of f, all three
+are continuous across nodes, and one lookup returns them.
+`interpolation="bspline"` (`docs/API_REFERENCE.md`, "Table interpolation")
+selects the previous scheme and reproduces version 1.1 bit for bit.
 
 **Effect.** On fixed configurations of the Zn06 benchmark cell the Born tensor
 changes by 4e-8, the configurational temperature by 8e-8 and the forces by
@@ -50,7 +49,7 @@ constants are unchanged (benchmark state: 0.204, 0.155, 0.045 GPa against
 **Change.** `-ffloat-store` is removed from the Release flags, which keep
 `-O2` and the warning and checking options. The option keeps floating-point
 variables out of registers. It matters only on the 32-bit x87 unit, whose
-registers carry extended precision; on x86-64 and arm64, double arithmetic
+registers carry extended precision. On x86-64 and arm64, double arithmetic
 uses 64-bit registers, so the option changes no result and only slows the code.
 
 **Effect.** Results are bit-identical with and without the option (GCC 14.2,
