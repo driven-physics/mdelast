@@ -1,0 +1,16 @@
+units metal
+atom_style atomic
+boundary p p p
+read_data NiAlCo.data
+pair_style eam/alloy
+pair_coeff * * Mishin_updated-Ni-Al-Co-2013.eam.alloy Ni Al Co
+compute vir all pressure NULL virial
+compute born all born/matrix numdiff 1e-6 vir
+variable e equal pe/atoms
+thermo_style custom pe c_vir c_born[1]
+dump d all custom 1 NiAlCo_forces.dump id fx fy fz
+dump_modify d sort id format float %.15e
+run 0
+print "EPOT_ATOM $(v_e:%.12f)"
+print "VIR $(c_vir[1]:%.12e) $(c_vir[2]:%.12e) $(c_vir[3]:%.12e) $(c_vir[4]:%.12e) $(c_vir[5]:%.12e) $(c_vir[6]:%.12e)"
+print "BORN $(c_born[1]:%.12e) $(c_born[2]:%.12e) $(c_born[3]:%.12e) $(c_born[4]:%.12e) $(c_born[5]:%.12e) $(c_born[6]:%.12e) $(c_born[7]:%.12e) $(c_born[8]:%.12e) $(c_born[9]:%.12e) $(c_born[10]:%.12e) $(c_born[11]:%.12e) $(c_born[12]:%.12e) $(c_born[13]:%.12e) $(c_born[14]:%.12e) $(c_born[15]:%.12e) $(c_born[16]:%.12e) $(c_born[17]:%.12e) $(c_born[18]:%.12e) $(c_born[19]:%.12e) $(c_born[20]:%.12e) $(c_born[21]:%.12e)"

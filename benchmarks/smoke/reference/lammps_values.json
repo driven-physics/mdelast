@@ -1,0 +1,45 @@
+{
+ "source": "LAMMPS (22 Jul 2025 - Update 4), pair_style eam/alloy, units metal, run 0, one MPI task; input in_NiAlCo.lmp of this folder. Energy from 'variable e equal pe/atoms'; virial from 'compute pressure NULL virial' (bar); Born matrix from 'compute born/matrix numdiff 1e-6' (energy units, divide by the cell volume for a stress); forces in NiAlCo_forces.dump (eV/A).",
+ "systems": {
+  "NiAlCo": {
+   "potential": "Mishin_updated-Ni-Al-Co-2013.eam.alloy",
+   "elements": [
+    "Ni",
+    "Al",
+    "Co"
+   ],
+   "epot_eV_per_atom": -4.498601469795,
+   "virial_bar_lammps_order_xx_yy_zz_xy_xz_yz": [
+    23754.32733573,
+    21152.24917499,
+    24096.88050268,
+    90.6213216965,
+    2262.867149601,
+    12.33919389499
+   ],
+   "born_matrix_eV_lammps_order": [
+    7986.846861748,
+    7952.552976493,
+    7876.003007325,
+    3829.482507925,
+    3832.160784984,
+    3807.663165231,
+    4980.4659189,
+    5004.689705555,
+    -60.90445022708,
+    56.31763560554,
+    -10.39319286546,
+    5001.620875432,
+    -59.37099962217,
+    12.74502017638,
+    -31.20056354984,
+    -51.3804370743,
+    23.96645492846,
+    10.0344311083,
+    7.894855218235,
+    13.88226030837,
+    -58.77310754364
+   ]
+  }
+ }
+}

@@ -22,6 +22,10 @@ The fixed-cell values depend on the table interpolation of the potential; `verif
 | `static.static_CB44_GPa` | GPa | 92.13965308 +/- 9.2e-06 | 92.13965579 +/- 9.2e-06 | = expected | = expected |
 | `static.laplacian_eV_A2` | eV/A^2 | 6567.770289 +/- 0.00066 | 6567.770385 +/- 0.00066 | = expected | = expected |
 | `static.static_T_conf_K` | K | 1000.120485 +/- 0.0001 | 1000.120487 +/- 0.0001 | = expected | = expected |
+| `ternary.epot_absdiff_eV_per_atom` | eV | <= 1e-10 | <= 1e-10 | 1.39e-12 | 4.72e-12 |
+| `ternary.force_max_absdiff_eV_A` | eV/A | <= 2e-06 | <= 2e-06 | 9.25e-08 | 1.71e-07 |
+| `ternary.virial_max_absdiff_GPa` | GPa | <= 1e-05 | <= 1e-05 | 1.09e-06 | 9.37e-07 |
+| `ternary.born_max_absdiff_GPa` | GPa | <= 0.004 | <= 0.004 | 0.000424 | 0.000425 |
 | `dynamics.nve_dt_ratio` |  | >= 3.5 and <= 4.5 | >= 3.5 and <= 4.5 | 3.998 | 3.998 |
 | `dynamics.nve_dt2.econs_err_max` |  | <= 5e-05 | <= 5e-05 | 1.06e-05 | 1.06e-05 |
 | `dynamics.nve_dt1.econs_err_max` |  | <= 1.5e-05 | <= 1.5e-05 | 2.65e-06 | 2.65e-06 |

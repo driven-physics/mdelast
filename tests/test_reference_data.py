@@ -63,6 +63,10 @@ class ReferenceDataTests(unittest.TestCase):
             sha256(ROOT / "potentials" / "Cu01.eam.alloy.txt"),
             "5e374260448eea5c26de59432d75e702c1778cc6999d2527a789e5387ce9dc9e",
         )
+        self.assertEqual(
+            sha256(ROOT / "potentials" / "Mishin_updated-Ni-Al-Co-2013.eam.alloy"),
+            "3118f1b0423210597c20450e79372d12f4b8a303a1280c2fd1191a3f148363f6",
+        )
 
 
 if __name__ == "__main__":

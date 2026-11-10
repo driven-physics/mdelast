@@ -16,6 +16,14 @@ Cu-Zn cell (no dynamics, deterministic up to floating-point round-off):
 Part B -- short dynamics (500 atoms, 6 at.% Zn, 300 K):
   B1  NVE: conserved-energy error at dt = 1 and 2 fs and its ~dt^2 scaling;
   B2  NVT and NPT: extended-Hamiltonian error and temperatures stay sane.
+Part C -- three elements: one fixed, distorted 500-atom Ni-Al-Co cell against
+stored LAMMPS values (pair_style eam/alloy; reference/README.md):
+  C1  potential energy per atom;
+  C2  every atomic force;
+  C3  virial stress (6 components);
+  C4  Born matrix (21 components).
+  For two elements every order of the pair blocks of a SETFL file gives the
+  same result, so Parts A and B cannot detect a wrong order (FIXES.md, entry 2).
 
 Shear components (44, 55, 66) cannot be strained in mdelast's orthorhombic
 cell; they enter benchmarks Z1 and L1 through C44.
@@ -50,7 +58,7 @@ def parse_args():
     p.add_argument("--build-dir", type=Path, default=None,
                    help="directory with md_driver_module*.so (default: <repo>/build/Release)")
     p.add_argument("--output-dir", type=Path, required=True)
-    p.add_argument("--skip-dynamics", action="store_true", help="run Part A only")
+    p.add_argument("--skip-dynamics", action="store_true", help="run Parts A and C only")
     p.add_argument("--interpolation", choices=("quintic", "bspline"), default="quintic",
                    help="table interpolation of the potential (default quintic; bspline = version <= 1.1)")
     return p.parse_args()
@@ -248,6 +256,79 @@ def run_static(mdm, get_potential):
 
 
 # ---------------------------------------------------------------------------
+# Part C: three-element cell against stored LAMMPS values
+# ---------------------------------------------------------------------------
+REF = HERE / "reference"
+NKTV2P = 1.6021765e6          # LAMMPS metal units: eV/A^3 -> bar
+# LAMMPS compute born/matrix output order (Voigt indices 1..6 = xx yy zz yz xz xy)
+BORN_ORDER = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
+              (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
+              (1, 2), (1, 3), (1, 4), (1, 5),
+              (2, 3), (2, 4), (2, 5),
+              (3, 4), (3, 5), (4, 5)]
+
+
+def read_lammps_data(path):
+    """Cubic box edge (A), types (0-based) and positions (A) of a LAMMPS atomic data file."""
+    lines = path.read_text().splitlines()
+    lo, hi = (float(x) for x in next(l for l in lines if l.endswith("xlo xhi")).split()[:2])
+    start = next(i for i, l in enumerate(lines) if l.startswith("Atoms")) + 2
+    rows = np.array([[float(x) for x in l.split()] for l in lines[start:] if l.strip()])
+    rows = rows[np.argsort(rows[:, 0])]
+    return hi - lo, rows[:, 1].astype(int) - 1, rows[:, 2:5]
+
+
+def run_ternary(mdm, get_potential):
+    """Energy, forces, virial and Born matrix of the Ni-Al-Co cell minus the LAMMPS values."""
+    U = mdm.Units
+    ref = json.loads((REF / "lammps_values.json").read_text())["systems"]["NiAlCo"]
+    L, types, pos = read_lammps_data(REF / "NiAlCo.data")
+    with quiet_stdout():
+        elements, potentials, eams = get_potential.get_EAM_alloy_file(ref["potential"])
+    names = [e[0] for e in elements]
+    if names != ref["elements"]:
+        raise SystemExit(f"element order {names} differs from the reference {ref['elements']}")
+    N = len(pos)
+    mass = [e[2] / U.Navogadro for e in elements]
+    P = [mdm.Vector3d(*(p * U.angstrom)) for p in np.mod(pos + L / 2, L) - L / 2]
+    V = [mdm.Vector3d(0.0, 0.0, 0.0) for _ in range(N)]
+    th = mdm.Thermostat(300.0, [1e-30], [0.0], 3.0 * N)
+    bth = mdm.Thermostat(300.0, [1e-30], [0.0], 1.0)
+    baro = mdm.Barostat(0.0, 1e-30, 0.0, bth)
+    box = mdm.Box(np.diag(np.full(3, L * U.angstrom)))
+    rg = [(k + 0.5) * 0.01 * U.angstrom for k in range(10)]
+    with quiet_stdout():
+        d = mdm.MDDriver(P, V, mdm.PotentialVector(potentials), mdm.EAMVector(eams),
+                         mdm.MDDriver.NVE, mdm.MDDriver.THERMOSTAT_KINETIC, th, baro, box, rg,
+                         3.0 * N, mass, [int(t) for t in types], 1e-15, False, 1.0, 1e3)
+    e = d.epot_atom / U.ev                                              # eV
+    F = np.array([[f.x, f.y, f.z] for f in d.forces]) / (U.ev / U.angstrom)   # eV/A
+    virial = -np.array(d.born_stress_tensor).ravel() / 1e10            # GPa, + = compressive
+    CB = np.array(d.born_elasticity_tensor) / 1e10                      # GPa
+    born = np.array([CB[i, j] for i, j in BORN_ORDER])
+    # LAMMPS values in the same units and order
+    e_l = ref["epot_eV_per_atom"]
+    vir_l = np.array(ref["virial_bar_lammps_order_xx_yy_zz_xy_xz_yz"])[[0, 1, 2, 5, 4, 3]] / 1e4
+    born_l = np.array(ref["born_matrix_eV_lammps_order"]) * NKTV2P / L ** 3 / 1e4
+    F_l = np.loadtxt(REF / "NiAlCo_forces.dump", skiprows=9)
+    F_l = F_l[np.argsort(F_l[:, 0])][:, 1:]
+    return {
+        "N": int(N),
+        "counts": {el: int((types == k).sum()) for k, el in enumerate(names)},
+        "epot_eV_per_atom": float(e),
+        "epot_lammps_eV_per_atom": float(e_l),
+        "epot_absdiff_eV_per_atom": float(abs(e - e_l)),
+        "force_max_abs_eV_A": float(np.abs(F_l).max()),
+        "force_max_absdiff_eV_A": float(np.abs(F - F_l).max()),
+        "virial_GPa": virial.tolist(),
+        "virial_max_absdiff_GPa": float(np.abs(virial - vir_l).max()),
+        "born_C11_C12_C44_GPa": [float(born[0:3].mean()), float(born[[6, 7, 11]].mean()),
+                                 float(born[3:6].mean())],
+        "born_max_absdiff_GPa": float(np.abs(born - born_l).max()),
+    }
+
+
+# ---------------------------------------------------------------------------
 # Part B: short dynamics through the documented Python API
 # ---------------------------------------------------------------------------
 NSIDE_DYN = 5           # 500 atoms
@@ -336,6 +417,11 @@ def main():
     result["static"] = run_static(mdm, get_potential)
     result["static"]["wall_s"] = time.time() - t0
     print(json.dumps(result["static"], indent=1), flush=True)
+
+    t1 = time.time()
+    result["ternary"] = run_ternary(mdm, get_potential)
+    result["ternary"]["wall_s"] = time.time() - t1
+    print(json.dumps(result["ternary"], indent=1), flush=True)
 
     if not args.skip_dynamics:
         dyn = {}

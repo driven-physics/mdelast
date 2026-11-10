@@ -36,11 +36,13 @@ Every distributed file and directory is listed below.
 - `potentials/` — tabulated EAM potentials used by the examples and sample case.
   - `potentials/Cu01.eam.alloy.txt` — Mishin et al. pure-Cu EAM potential.
   - `potentials/ZnCu.eam.alloy` — Clement–Auger Cu-Zn EAM potential.
+  - `potentials/Mishin_updated-Ni-Al-Co-2013.eam.alloy` — Purja Pun–Yamakov–Mishin Ni-Al-Co EAM potential, used by benchmark S.
 - `THIRD_PARTY_LICENSES/` — licenses and notices for redistributed third-party data.
   - `THIRD_PARTY_LICENSES/Clement-Auger-LGPL-2.1.txt` — LGPL-2.1 license supplied with the OpenKIM distribution of the Cu-Zn potential.
   - `THIRD_PARTY_LICENSES/Clement-Auger-NOTICE.md` — potential attribution, provenance, modification notice, and checksum.
   - `THIRD_PARTY_LICENSES/Mishin-Cu-CDDL-1.0.txt` — CDDL-1.0 license supplied with the OpenKIM distribution of the pure-Cu potential.
   - `THIRD_PARTY_LICENSES/Mishin-Cu-NOTICE.md` — pure-Cu potential attribution, provenance, and checksum.
+  - `THIRD_PARTY_LICENSES/PurjaPun-NiAlCo-NOTICE.md` — Ni-Al-Co potential attribution, provenance, and checksum.
 - `sample_case/` — comprehensive manuscript test: zero-pressure NPT followed by NVT elasticity accumulation.
   - `sample_case/run.py` — self-contained NPT-to-NVT input/run script.
   - `sample_case/validate.py` — automated comparison of a completed run against the reference tolerances.
@@ -54,7 +56,8 @@ Every distributed file and directory is listed below.
   - `benchmarks/bench_lib.py` — helpers shared by the benchmark scripts.
   - `benchmarks/update_expected.py` — replaces the expected values of Z1 or L1 by those of a new reference run, keeping the tolerances.
   - `benchmarks/make_expected_md.py` — renders `benchmarks/expected/*.json` as `EXPECTED.md`.
-  - `benchmarks/smoke/run_smoke.py` — benchmark S: static finite-difference checks and short NVE, NVT, and NPT runs.
+  - `benchmarks/smoke/run_smoke.py` — benchmark S: static finite-difference checks, short NVE, NVT, and NPT runs, and a three-element Ni-Al-Co cell against stored LAMMPS values.
+  - `benchmarks/smoke/reference/` — the Ni-Al-Co cell, the LAMMPS input, and the LAMMPS forces and values.
   - `benchmarks/l12_cuzn3_5K/run.py` — benchmark L1: L1₂ CuZn₃ at 5 K, NPT followed by NVT.
   - `benchmarks/expected/` — expected values and tolerances (`smoke.json`, `zn06_300K.json`, `l12_cuzn3_5K.json`, and the readable `EXPECTED.md`).
   - `benchmarks/slurm_example.sh` — one-core Slurm array that runs and verifies S, Z1, and L1.
@@ -338,6 +341,19 @@ users to credit the repository as well as the original paper:
 Y. Mishin et al., “Structural stability and lattice defects in copper: Ab
 initio, tight-binding, and embedded-atom calculations,” *Phys. Rev. B* 63
 (2001) 224106, <https://doi.org/10.1103/PhysRevB.63.224106>.
+
+`potentials/Mishin_updated-Ni-Al-Co-2013.eam.alloy` is the Ni-Al-Co potential of
+Purja Pun, Yamakov, and Mishin, used by Part C of benchmark S. The bundled file
+is byte-for-byte identical to the parameter file of OpenKIM model
+`MO_826591359508_001`, which is dedicated to the public domain. Its attribution
+notice is in `THIRD_PARTY_LICENSES/`. NIST distributes the same data:
+
+<https://www.ctcms.nist.gov/potentials/entry/2015--Purja-Pun-G-P-Yamakov-V-Mishin-Y--Ni-Al-Co/>
+
+G. P. Purja Pun, V. Yamakov, and Y. Mishin, “Interatomic potential for the
+ternary Ni-Al-Co system and application to atomistic modeling of the B2-L1_0
+martensitic transformation,” *Modelling Simul. Mater. Sci. Eng.* 23 (2015)
+065006, <https://doi.org/10.1088/0965-0393/23/6/065006>.
 
 ## Units and compatibility
 

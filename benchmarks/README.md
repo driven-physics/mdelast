@@ -4,11 +4,11 @@ This directory documents how to verify an mdelast installation independently and
 (R. Shikler, M. Krief, Y. Ashkenazy, *Elastic constants of multi-component EAM alloys from single-trajectory stress fluctuations*, Comput. Phys. Commun.).
 
 All paths below are relative to the repository root.
-It needs only the files already in the repository (`src/`, `potentials/ZnCu.eam.alloy`, `sample_case/run.py`).
+It needs only the files already in the repository (`src/`, `potentials/`, `sample_case/run.py`).
 
 | ID | Benchmark | What it verifies | Input | Runtime, 1 core |
 |---|---|---|---|---|
-| **S** | Smoke test: static finite-difference checks plus short NVE/NVT/NPT runs | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = (1/V0) ∂²U/(∂η_a∂η_b) at zero strain; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT | `benchmarks/smoke/run_smoke.py` | under 1 min |
+| **S** | Smoke test: static finite-difference checks, short NVE/NVT/NPT runs, and a three-element cell against LAMMPS | Forces = −∇U; Born stress = (1/V) ∂U/∂η; Born constants C^B_ab = (1/V0) ∂²U/(∂η_a∂η_b) at zero strain; configurational-temperature Laplacian = Σ∇²U; net force = 0; absolute energy, pressure, Born constants, Laplacian and T_conf of a fixed cell; NVE energy error scales as dt²; extended-Hamiltonian conservation and temperatures in NVT and NPT; energy, forces, virial and Born matrix of a fixed 500-atom Ni–Al–Co cell against stored LAMMPS values (three elements, `FIXES.md`, entry 2) | `benchmarks/smoke/run_smoke.py` | under 1 min |
 | **Z1** | 6 at.% Zn α-brass, 300 K, NPT → NVT (the workflow of Sec. 5.1, Figs. 1–5) | Full production protocol: zero-pressure volume, C11, C12, C44, their Born, stress-fluctuation and kinetic parts, T_K, both T_conf estimators, pressure, conserved-energy error and drift | `sample_case/run.py` (already in the repository) | about 19 min |
 | **L1** | Ordered L1₂ CuZn₃, 5 K, NPT → NVT (Table 1 of the manuscript) | Same quantities as Z1 near the athermal limit, plus agreement with the independent 0 K reference values of the potential (NIST repository) | `benchmarks/l12_cuzn3_5K/run.py` | about 17 min |
 
@@ -156,6 +156,7 @@ benchmarks/
     smoke.json zn06_300K.json l12_cuzn3_5K.json   expected values and tolerances
     EXPECTED.md                 the same, as tables
   smoke/run_smoke.py            benchmark S
+  smoke/reference/              S, Part C: Ni-Al-Co cell, LAMMPS input, forces and values (README.md)
   l12_cuzn3_5K/run.py           benchmark L1
 ```
 

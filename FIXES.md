@@ -60,6 +60,27 @@ series and the results of Z1, and the results of L1. Benchmark Z1 takes
 with earlier builds, including the reference values in `benchmarks/expected/`,
 remain valid.
 
+### 7. Checks with three and four elements
+
+**Files:** `tests/test_eam_reader.py`, `benchmarks/smoke/run_smoke.py`,
+`benchmarks/smoke/reference/`, `benchmarks/expected/smoke.json`,
+`potentials/Mishin_updated-Ni-Al-Co-2013.eam.alloy`
+
+**Change.** No change to `src/` or to any computed result. The pair-block
+error of entry 2 affects only potentials with three or more elements, and the
+Cu–Zn benchmarks cannot detect it. Two checks now cover that case.
+
+- `tests/test_eam_reader.py` writes synthetic three- and four-element SETFL
+  files and checks that every pair function reaches the slot `MDDriver` reads.
+  With the pair-block order of version 1.0 it fails.
+- Part C of benchmark S compares a distorted 500-atom Ni–Al–Co cell with
+  stored LAMMPS values: energy, forces, virial, and Born matrix. With the
+  pair-block order of version 1.0 the cell is off by 0.43 eV/atom in energy.
+
+The Ni–Al–Co potential of Purja Pun, Yamakov and Mishin (2015) is included
+from OpenKIM, where it is dedicated to the public domain
+(`THIRD_PARTY_LICENSES/PurjaPun-NiAlCo-NOTICE.md`).
+
 ### Reference values
 
 `benchmarks/expected/zn06_300K.json` and `l12_cuzn3_5K.json` now hold the

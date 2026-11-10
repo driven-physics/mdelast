@@ -1,6 +1,6 @@
 {
  "benchmark": "smoke",
- "source": "fixed-cell values: one value per table interpolation of the potential; quintic from version 1.2 (default), bspline from versions <= 1.1 (identical to version 1.2 with interpolation='bspline'). Finite-difference and dynamics bounds apply to both.",
+ "source": "fixed-cell values: one value per table interpolation of the potential; quintic from version 1.2 (default), bspline from versions <= 1.1 (identical to version 1.2 with interpolation='bspline'). Finite-difference and dynamics bounds apply to both. Part C compares one fixed Ni-Al-Co cell with LAMMPS (22 Jul 2025 - Update 4, pair_style eam/alloy; benchmarks/smoke/reference/). Its bounds are about ten times the observed differences, and the Born-matrix bound also covers the numerical differentiation of LAMMPS compute born/matrix (numdiff 1e-6). With the pair-block order of version 1.0 the cell is off by 0.43 eV/atom in energy, 2.0 eV/A in force, 8.7 GPa in the virial and 24 GPa in the Born matrix.",
  "runtime_s_one_core": 35,
  "checks": {
   "static.net_force_rel": {
@@ -86,6 +86,30 @@
    },
    "rel_tol": 1e-07,
    "unit": "K"
+  },
+  "ternary.epot_absdiff_eV_per_atom": {
+   "max": 1e-10,
+   "unit": "eV",
+   "observed_bspline": 4.720668300706166e-12,
+   "observed_quintic": 1.3917755836700962e-12
+  },
+  "ternary.force_max_absdiff_eV_A": {
+   "max": 2e-06,
+   "unit": "eV/A",
+   "observed_bspline": 1.7093820381397506e-07,
+   "observed_quintic": 9.251056076742259e-08
+  },
+  "ternary.virial_max_absdiff_GPa": {
+   "max": 1e-05,
+   "unit": "GPa",
+   "observed_bspline": 9.366091378026908e-07,
+   "observed_quintic": 1.0919494588534917e-06
+  },
+  "ternary.born_max_absdiff_GPa": {
+   "max": 0.004,
+   "unit": "GPa",
+   "observed_bspline": 0.00042494573656881585,
+   "observed_quintic": 0.0004243358896474092
   },
   "dynamics.nve_dt_ratio": {
    "min": 3.5,
