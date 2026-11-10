@@ -60,6 +60,8 @@ Every distributed file and directory is listed below.
   - `benchmarks/slurm_example.sh` — one-core Slurm array that runs and verifies S, Z1, and L1.
 - `tests/` — standard-library unit, integrity, and compiled smoke tests.
   - `tests/test_averages.py` — statistical-helper unit tests.
+  - `tests/test_eam_reader.py` — SETFL reader with three and four elements
+    (synthetic file, no external potential).
   - `tests/test_examples_smoke.py` — short compiled runs of all examples and the NPT-to-NVT sample.
   - `tests/test_reference_data.py` — reference CSV, metadata, and potential-checksum integrity tests.
   - `tests/test_tables.py` — table interpolation option and properties of the quintic tables.
