@@ -1,5 +1,7 @@
 # mdelast
 
+<p align="center"><img src="docs/logo/mdelast-banner-dark.png" alt="mdelast: elastic constants from stress fluctuations" width="640"></p>
+
 `mdelast` is a C++17/Python molecular-dynamics program for calculating
 finite-temperature elastic constants of multi-component embedded-atom-method
 (EAM) alloys from equilibrium stress fluctuations.
@@ -23,6 +25,7 @@ Every distributed file and directory is listed below.
   - `docs/API_REFERENCE.md` — Python and compiled-extension API reference.
   - `docs/BUILDING.md` — detailed build requirements and troubleshooting.
   - `docs/USAGE.md` — simulation parameters, examples, and output format.
+  - `docs/logo/` — project logo.
 - `examples/` — standalone example inputs.
   - `examples/ar_lj_gas/` — 500-atom argon Lennard-Jones NVT example.
     - `examples/ar_lj_gas/run.py` — argon example run script.
